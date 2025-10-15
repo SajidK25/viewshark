@@ -3,6 +3,11 @@
   debug
 }
 
+# Catch-all for parent domain (redirect to test subdomain)
+https://watchmaji.com, http://watchmaji.com {
+  redir https://test.watchmaji.com{uri} 301
+}
+
 https://test.watchmaji.com {
   tls {
     protocols tls1.2 tls1.3
