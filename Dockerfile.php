@@ -11,8 +11,12 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg && \
     docker-php-ext-install -j$(nproc) gd exif zip intl sockets mysqli pdo_mysql
 
 # PHP runtime settings
-RUN printf '%s\n' \
+printf '%s\n' \
   'date.timezone=UTC' \
   'memory_limit=512M' \
   'upload_max_filesize=256M' \
-  'post_max_size=256M' > /usr/local/etc/php/conf.d/zz-viewshark.ini
+  'post_max_size=256M' \
+  'display_errors=On' \
+  'error_reporting=E_ALL | E_DEPRECATED | E_STRICT' \
+  'log_errors=On' \
+  'error_log=/proc/self/fd/2' > /usr/local/etc/php/conf.d/zz-viewshark.ini
