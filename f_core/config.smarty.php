@@ -41,5 +41,8 @@ $smarty->assign('global_images_url', $cfg["global_images_url"]);
 $smarty->assign('media_files_url', $cfg["media_files_url"]);
 $smarty->assign('profile_images_url', $cfg["profile_images_url"]);
 $smarty->assign('logging_dir', $cfg["logging_dir"]);
-$smarty->assign('new_layout', $cfg["new_layout"]);
+// Fixed: Use null coalescing to prevent undefined key warning
+$smarty->assign('new_layout', $cfg["new_layout"] ?? 'default');
+
+$userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
 $smarty->assign('is_mobile', (strpos($_SERVER['HTTP_USER_AGENT'], 'Mobile') ? true : (strpos($_SERVER['HTTP_USER_AGENT'], 'iPad') ? true : (strpos($_SERVER['HTTP_USER_AGENT'], 'iPhone') ? true : false))));
