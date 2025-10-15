@@ -1,0 +1,74 @@
+--> ViewShark Upgrade Instructions <--
+
+*** Upgrading FROM 3.x to 4.0 ***
+
+	Since there are many core and database changes that come with this update, we highly recommend contacting our support team to perform the upgrade for you!
+
+
+
+___	How to perform the upgrade: ___
+
+    Create a backup of the entire website AND database before proceeding!!
+    
+    Create a temporary folder anywhere you'd like and move the entire website there.
+
+    Copy all the files from the installation package to your current installation location (www or public_html).
+    
+    From the temporary folder, copy or move the "f_data/data_userfiles/" folder back to the site installation directory, overwrite if prompted.
+    
+    From the temporary folder, copy or move back to the site installation directory the following files:
+  		- f_core/config.backend.php
+  		- f_core/config.database.php
+  		- f_core/config.set.php
+  	
+  	From the temporary folder, copy or move back the files or folders for the logo, overwrite if prompted:
+  		- f_data/data_images/logo-mail.png
+  		- f_scripts/fe/img/
+  		- f_scripts/be/img/
+
+    Import the database upgrade scripts updatedb_site.sql and updatedb_chat.sql (the latter should be executed on the live chat server)
+    
+    Run the PHP upgrade script updatedb.php with the following command line options:
+  		- /usr/local/bin/php updatedb.php ff
+  		- /usr/local/bin/php updatedb.php fs
+
+  		- /usr/local/bin/php updatedb.php fdata live favorites
+  		- /usr/local/bin/php updatedb.php fdata video favorites
+  		- /usr/local/bin/php updatedb.php fdata image favorites
+  		- /usr/local/bin/php updatedb.php fdata audio favorites
+  		- /usr/local/bin/php updatedb.php fdata doc favorites
+  		- /usr/local/bin/php updatedb.php fdata blog favorites
+
+  		- /usr/local/bin/php updatedb.php fdata live history
+  		- /usr/local/bin/php updatedb.php fdata video history
+  		- /usr/local/bin/php updatedb.php fdata image history
+  		- /usr/local/bin/php updatedb.php fdata audio history
+  		- /usr/local/bin/php updatedb.php fdata doc history
+  		- /usr/local/bin/php updatedb.php fdata blog history
+
+  		- /usr/local/bin/php updatedb.php fdata live liked
+  		- /usr/local/bin/php updatedb.php fdata video liked
+  		- /usr/local/bin/php updatedb.php fdata image liked
+  		- /usr/local/bin/php updatedb.php fdata audio liked
+  		- /usr/local/bin/php updatedb.php fdata doc liked
+  		- /usr/local/bin/php updatedb.php fdata blog liked
+
+  		- /usr/local/bin/php updatedb.php fdata live watchlist
+  		- /usr/local/bin/php updatedb.php fdata video watchlist
+  		- /usr/local/bin/php updatedb.php fdata image watchlist
+  		- /usr/local/bin/php updatedb.php fdata audio watchlist
+  		- /usr/local/bin/php updatedb.php fdata doc watchlist
+  		- /usr/local/bin/php updatedb.php fdata blog watchlist
+  		
+  		- edit updatedb.php and comment out line 103 and uncomment the line below it
+  		- edit updatedb.php and comment out line 108 and uncomment the line below it
+  		- save the edits run the following commands:
+  		
+  		- /usr/local/bin/php updatedb.php fdata live responses
+  		- /usr/local/bin/php updatedb.php fdata video responses
+  		- /usr/local/bin/php updatedb.php fdata image responses
+  		- /usr/local/bin/php updatedb.php fdata audio responses
+  		- /usr/local/bin/php updatedb.php fdata doc responses
+  		- /usr/local/bin/php updatedb.php fdata blog responses
+
+    For support, please contact us at: support@viewshark.com / viewshark@gmail.com

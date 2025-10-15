@@ -1,0 +1,153 @@
+v4.0    - Mon Jun 24 12:00:00 GMT 2024
+		- new template layout
+		- added PWA support
+		- added shorts module
+		- added extended video grabber module support (can now embed videos from dozens of websites)
+		- added short URLs for channels: yourdomain.com/@username
+		- new comments system (infite scrolling, sort comments, pin comments, edit comments)
+		- updated rating functionality (you can now change or cancel your vote)
+		- updated emotes component (unicode emoji support)
+		- updated notifications menu (will now display the number of new notifications)
+		- updated CSS theme creation (can now create new themes much easier)
+		- updated categories navigation (horizontal scroll/swipe driven categories)
+		- updated third-party framework components to latest version
+		- added new live chat features: VIP badges, @user search, message highlighting for broadcaster, mods and VIPS along with configuration options
+		- many other minor under-the-hood code and database optimizations
+
+v3.4    - Mon Nov 8 12:00:00 GMT 2021
+        - added new live chat features: chat logs/history, user avatars in chat, custom display names, pause/resume on scroll, message length limiting
+        - optimized stream key functionality
+        - improved topbar search functionality, optimized search bar on mobile
+        - updated S3 AWS PHP framework
+        - updated Smarty templating engine
+        - updated ADOdb database engine
+        - minor bugfixes
+
+v3.3    - Mon Apr 27 12:00:00 GMT 2020
+        - new left side navigation menu
+        - minor layout changes & bugfixes
+
+v3.2	- Tue Oct 1 12:00:00 GMT 2019
+	- added video previews on mouseover
+	- added infinite scrolling
+	- added featured categories
+	- added label buttons in section navigation
+	- added parallax effect to channel header background
+	- optimized channel header crop tool
+	- updated facebook and google login
+	- added help pages for live streaming, partners and affiliates
+	- optimized homepage loading speed
+	- optimized left side navigation menu
+	- minor layout changes & bugfixes
+
+v3.1	- Mon Apr 8 12:00:00 GMT 2019
+	- theme and style changes
+	- mobile optimizations
+	- added dark mode/light mode theme switcher
+	- added emojis to comments
+
+v3.0	- Mon Jan 21 12:00:00 GMT 2019
+	- added live streaming support
+	- multiple streaming servers are supported
+	- load balancers for streaming servers
+	- added live chat support
+	- added followers support
+	- added paid channel subscriptions
+	- added revenue sharing for paid subscriptions
+	- added affiliate module (users can earn money from the numbers of views on videos, etc.)
+	- added revenue sharing for affiliate module
+	- updated core components
+	- optimized core functionality and database structure
+	- removed JW Player support
+	- fixed some known frontend and backend bugs
+
+v2.3	- Mon Feb 12 12:00:00 GMT 2018
+	- 7 new CSS themes on dark background
+	- improved video ads vast system
+	- added support for custom video ads
+	- added support for video ads in embedded player
+	- improved ad system by assigning banner ads to categories
+	- improved ad system by assigning video ads to categories
+	- added translation for categories
+	- added new sitemap generating function
+	- added some SEO heading tags improvements
+	- added custom 404 error page
+	- removed Flowplayer support
+	- optimized video encoding aspect ratio calculation
+	- optimized video grabber thumbnails and 1080p downloading
+	- fixed some known frontend and backend bugs
+
+v2.2	- Tue Jun 6 12:00:00 GMT 2017
+	- new video/audio player - video.js
+	- supported player features: advertising, logo, thumbnail previews, subtitles, skins, right-click menu, related videos
+	- updated upload page: added option for editing title, description, tags and category before uploading
+	- updated top search bar behavior
+
+v2.1	- Wed Feb 1 12:00:00 GMT 2017
+	- new YouTube style template & layout
+	- personalized homepage content: trending, recommended, channels, categories
+	- subscription notifications menu
+
+v2.0	- Thu Oct 30 12:00:00 GMT 2016
+	- new layout: responsive, adaptable, resizable
+	- new template, HTML5 & CSS3 support
+	- new frontend, new admin panel
+	- new core module: blogs
+	- blog module functions: add, edit, delete, insert mixed media content
+	- blog module functions: view, comment, rate, respond, share, embed, flag
+	- blog module functions: approve, suspend, promote, feature, search, sort
+	- charts and graphs for uploaded files, accounts, earnings and analytics
+	- added support for Facebook and Google OAuth2 login & registration
+	- updated captcha system to Google reCaptcha
+	- added subcategories (one sub-level)
+	- added vector font support (FontAwesome, Icomoon)
+	- three (3) new frontend thumbnail viewmodes
+	- added promotable media content
+	- added autocomplete search across all website sections
+	- added support for uploading from mobile devices
+	- new video transcoding profile: 1080p
+	- added video transcoding progress indicator
+	- added support for animated .GIF images
+	- new user channel pages with custom headers and configurable modules
+	- added custom display name instead of default username
+	- admin panel event notifications, for uploading, registrations, payments, and more
+	- admin panel searchable navigation menu
+
+v0.3    - Thu Oct 30 12:00:00 GMT 2014
+        - updates to core files
+            - autoloader implementation
+            - database optimizations
+
+v0.2	- Mon Sep 2 12:00:00 GMT 2013
+	- update to jwplayer 6
+	    - custom bitrate selection
+	    - layout settings
+	    - playback settings
+	    - logo settings
+	    - right-click settings
+	    - advertising plugin
+	    - captions plugin
+	    - sharing plugin
+	    - related plugin
+	    - built-in analytics plugin
+	    - google analytics plugin
+	    - html5 mode
+	    - flash mode
+	- update to flowplayer 5
+	    - custom bitrate selection
+	    - logo settings
+	    - behavior settings
+	    - advertising plugin
+	    - captions plugin
+	    - analytics plugin
+	    - html5 mode
+	    - flash mode
+	- new video conversion profiles: MP4, WEBM, OGV
+	- custom bitrate profiles for each video format: 360p, 480p, 720p
+	- dropped FLV video conversion
+	- new advertising group, "Per File"
+	    - assign banners ads to specific videos
+	    - assign video ads to specific videos
+
+v0.1b 	- Fri Jan 25 12:00:00 GMT 2013
+        - initial public release

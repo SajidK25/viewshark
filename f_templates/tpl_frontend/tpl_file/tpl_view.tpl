@@ -1,0 +1,1 @@
+				{generate_html type="view_layout" bullet_id="ct-bullet1" entry_id="ct-entry-details1" section="view" bb="0"}

@@ -1,0 +1,71 @@
+	<script type="text/javascript">var menu_section = '{href_entry getKey="be_members"}';</script>
+	<script type="text/javascript">{include file="f_scripts/be/js/settings-accordion.js"}</script>
+	
+	<div class="wdmax entry-list" id="ct-wrapper">
+	    <div class="section-top-bar{if $smarty.get.do eq "add"}-add{else} vs-maskx{/if} left-float top-bottom-padding">
+            	<div class="sortings">{include file="tpl_backend/tpl_settings/ct-save-top.tpl"}{include file="tpl_backend/tpl_settings/ct-cancel-top.tpl"}</div>
+            	<div class="page-actions">
+            		{include file="tpl_backend/tpl_settings/ct-save-open-close.tpl"}
+            		<div class="search-hold">
+            			{if $smarty.get.do ne "add"}{include file="tpl_frontend/tpl_file/tpl_search_inner_be.tpl"}{/if}
+            		</div>
+            	</div>
+                <div class="clearfix"></div>
+    	    </div>
+    	    <div class="clearfix"></div>
+            
+    	    <div class="vs-mask">{generate_html type="user_accounts" bullet_id="ct-bullet1" entry_id="ct-entry-details1" bb=1}</div>
+            
+            {if $smarty.get.do eq "add"}
+            <div class="clearfix"></div>
+            <div class="section-bottom-bar{if $smarty.get.do eq "add"}-add{else} vs-maskx{/if} left-float top-bottom-padding">
+                <div class="clearfix"></div>
+                {include file="tpl_backend/tpl_settings/ct-save-top.tpl"}{include file="tpl_backend/tpl_settings/ct-cancel-top.tpl"}
+            </div>
+            {/if}
+	</div>
+
+	{include file="tpl_backend/tpl_settings/ct-switch-js.tpl"}
+	{include file="tpl_backend/tpl_settings/ct-actions-js.tpl"}
+	<script type="text/javascript">
+        $(document).ready(function () {ldelim}
+                $('.icheck-box input').each(function () {ldelim}
+                        var self = $(this);
+                        self.iCheck({ldelim}
+                                checkboxClass: 'icheckbox_square-blue',
+                                radioClass: 'iradio_square-blue',
+                                increaseArea: '20%'
+                                
+                        {rdelim});
+                {rdelim});
+                $('.icheck-box input').on('ifChecked', function(event){ldelim} var _id = $(this).val(); $("#hcs-id" + _id).prop('checked', true); {rdelim});
+                $('.icheck-box input').on('ifUnchecked', function(event){ldelim} var _id = $(this).val(); $("#hcs-id" + _id).prop('checked', false); {rdelim});
+                
+        	$("#entry-action-buttons .dl-trigger").on("click", function(){ldelim}
+        		if ($("#entry-action-buttons ul.dl-menu").hasClass("dl-menuopen")) {ldelim}
+                            setTimeout(function () {ldelim}
+                                    if ($("#file-time-actions ul.dl-menu").hasClass("dl-menuopen")) {ldelim}
+                                            $("#file-time-actions .dl-trigger").click();
+                                    {rdelim}
+                                    if ($("#file-type-actions ul.dl-menu").hasClass("dl-menuopen")) {ldelim}
+                                            $("#file-type-actions .dl-trigger").click();
+                                    {rdelim}
+                                    $("#choices-ipp_select").slideUp(300, function(){ldelim}$('#ct-wrapper').unbind('click', bodyHideSelect);{rdelim});
+                            {rdelim}, 100);
+                        {rdelim}
+		{rdelim});
+        	$("#file-time-actions .dl-trigger").on("click", function(){ldelim}
+        		if ($("#file-time-actions ul.dl-menu").hasClass("dl-menuopen")) {ldelim}
+        		setTimeout(function () {ldelim}
+                                if ($("#file-type-actions ul.dl-menu").hasClass("dl-menuopen")) {ldelim}
+                                        $("#file-type-actions .dl-trigger").click();
+                                {rdelim}
+                                if ($("#entry-action-buttons ul.dl-menu").hasClass("dl-menuopen")) {ldelim}
+                                        $("#entry-action-buttons .dl-trigger").click();
+                                {rdelim}
+                                $("#choices-ipp_select").slideUp(300, function(){ldelim}$('#ct-wrapper').unbind('click', bodyHideSelect);{rdelim});
+                        {rdelim}, 100);
+                        {rdelim}
+		{rdelim});
+        {rdelim});
+        </script>

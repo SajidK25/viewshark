@@ -1,0 +1,73 @@
+--> ViewShark Installation Instructions <--
+
+1. Unpack the archive and upload all files to your public_html location.
+
+2. Create new database and import installation .sql file (viewshark.sql.gz).
+
+3. Edit f_core/config.database.php and set details for database connectivity.
+
+4. Edit f_core/config.set.php and set website access URL.
+
+5. The following file/folder permissions need to be set if PHP server API is "apache" (can be skipped if server API is "cgi"):
+
+- f_data/data_cache/_c_db/ ...................... 0777
+- f_data/data_cache/_c_tpl/ ..................... 0777
+
+- f_data/data_languages/ ........................ 0777
+- f_data/data_languages/en_US/lang_backend/ ..... 0777 (plus all .php files inside - 0666)
+- f_data/data_languages/en_US/lang_frontend/ .... 0777 (plus all .php files inside - 0666)
+
+- f_data/data_lists/*.tpl........................ 0666
+
+- f_data/data_logs/log_conv/ .................... 0777
+- f_data/data_logs/log_dl/ ...................... 0777
+- f_data/data_logs/log_error/.................... 0777
+- f_data/data_logs/log_mail/ .................... 0777
+- f_data/data_logs/log_pp/ ...................... 0777
+- f_data/data_logs/log_xfer/..................... 0777
+
+- f_data/data_sessions/	......................... 0777
+
+- f_data/data_sitemaps/sm_global/ ............... 0777
+- f_data/data_sitemaps/sm_image/ ................ 0777
+- f_data/data_sitemaps/sm_short/ ................ 0777
+- f_data/data_sitemaps/sm_video/ ................ 0777
+
+- f_data/data_userfiles/user_media/ ............. 0777
+- f_data/data_userfiles/user_profile/ ........... 0777
+- f_data/data_userfiles/user_uploads/ ........... 0777
+- f_data/data_userfiles/user_views/ ............. 0777
+
+6. Access the admin panel at https://www.yourdomain.com/admin with username admin and password admin
+
+7. Change the default admin password at Access Control > Admin Panel Access
+
+
+##########
+##########
+
+!! For upgrading from older versions, please refer to UPGRADE.txt !!
+
+
+
+--> Installing cron scripts <--
+
+Add the following entries to your crontab user: (crontab -u [user] -e)
+
+## conversion check every 1 minutes ##
+*/1 * * * * /usr/local/bin/php /path/to/install/f_modules/m_frontend/m_cron/convert_queue.php 1> /dev/null
+
+## check for expired subs ##
+0 0 * * * /usr/local/bin/php /path/to/install/f_modules/m_frontend/m_cron/expired_subs.php 1> /dev/null
+
+## update dashboard stats every 6 hours ##
+0 */6 * * * /usr/local/bin/php /path/to/install/f_modules/m_frontend/m_cron/admin_dashboard.php update 1> /dev/null
+
+## check disk space usage every 3 hours ##
+0 */3 * * * /usr/local/bin/php /path/to/install/f_modules/m_frontend/m_cron/disk_usage.php 1> /dev/null
+
+## update followers/subs weekly, Sundays at 19:30 ##
+30 19 * * 0 /usr/local/bin/php /path/to/install/f_modules/m_frontend/m_cron/update_followers_subs.php 1> /dev/null
+
+## delete php session files older than 30 days
+0 0 * * 0 find /path/to/install/f_data/data_sessions/ -atime +30 | xargs -r rm

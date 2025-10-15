@@ -1,0 +1,39 @@
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+# conversion check every 1 minute
+*/1 * * * * root php /srv/viewshark/f_modules/m_frontend/m_cron/convert_queue.php 1> /dev/null 2>&1
+
+# check for expired subs daily at midnight
+0 0 * * * root php /srv/viewshark/f_modules/m_frontend/m_cron/expired_subs.php 1> /dev/null 2>&1
+
+# update dashboard stats every 6 hours
+0 */6 * * * root php /srv/viewshark/f_modules/m_frontend/m_cron/admin_dashboard.php update 1> /dev/null 2>&1
+
+# check disk space usage every 3 hours
+0 */3 * * * root php /srv/viewshark/f_modules/m_frontend/m_cron/disk_usage.php 1> /dev/null 2>&1
+
+# update followers/subs weekly, Sundays at 19:30
+30 19 * * 0 root php /srv/viewshark/f_modules/m_frontend/m_cron/update_followers_subs.php 1> /dev/null 2>&1
+
+# transfer check every 3 minutes
+*/3 * * * * root php /srv/viewshark/f_modules/m_frontend/m_cron/transfer_queue.php 1> /dev/null 2>&1
+
+# clean chat notifications and usernames every 2 days at 09:00
+0 9 */2 * * root php /srv/viewshark/f_modules/m_frontend/m_cron/clean_chat.php 1> /dev/null 2>&1
+
+# clean temps daily at 00:15
+15 0 * * * root php /srv/viewshark/f_modules/m_frontend/m_cron/clean_temps.php 1> /dev/null 2>&1
+
+# VOD server tasks (paths configured via cfg.php written by init)
+*/3 * * * * root php /srv/viewshark/f_modules/m_frontend/m_cron/vod-server/recording_previews.php 1> /dev/null 2>&1
+*/5 * * * * root php /srv/viewshark/f_modules/m_frontend/m_cron/vod-server/recording_fix.php 1> /dev/null 2>&1
+0 */12 * * * root php /srv/viewshark/f_modules/m_frontend/m_cron/vod-server/clear_vods.php 1> /dev/null 2>&1
+*/10 * * * * root php /srv/viewshark/f_modules/m_frontend/m_cron/vod-server/sync_df.php 1> /dev/null 2>&1
+0 */3 * * * root php /srv/viewshark/f_modules/m_frontend/m_cron/vod-server/sync_vods.php 1> /dev/null 2>&1
+
+# chat-server: sync subs and follows nightly
+10 0 * * * root php /srv/viewshark/f_modules/m_frontend/m_cron/chat-server/sync_subs.php 1> /dev/null 2>&1
+# chat-server: sync subs and follows nightly
+10 0 * * * php /srv/viewshark/f_modules/m_frontend/m_cron/chat-server/sync_subs.php 1> /dev/null 2>&1
+

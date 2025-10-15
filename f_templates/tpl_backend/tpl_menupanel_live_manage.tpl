@@ -1,0 +1,1 @@
+                                    	    <li><a href="javascript:;" id="backend-menu-entry6-sub6" class="menu-panel-entry-sub be-panel{if $page_display eq "backend_tpl_files" and $smarty.get.u[0] eq "l"} active{/if}" rel-m="{href_entry key="be_files"}"><i class="iconBe-arrow-right in-menu"></i>{lang_entry key="backend.menu.fm.l"}</a></li>

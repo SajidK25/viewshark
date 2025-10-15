@@ -1,0 +1,68 @@
+{
+  email hello@sami-ahmed.net
+}
+
+  https://test.watchmaji.com {
+  root * /srv/viewshark
+  encode zstd gzip
+  file_server
+
+  # Admin panel routing -> backend parser
+  @admin path /admin /admin/*
+  rewrite @admin /f_modules/m_backend/parser.php
+  php_fastcgi php:9000
+
+  # Serve HLS (from SRS volume) under /hls
+  handle_path /hls/* {
+    root * /var/www
+    header Cache-Control "no-cache"
+    header Access-Control-Allow-Origin "*"
+    file_server
+  }
+
+  # PHP with fallback to parser.php
+  php_fastcgi php:9000 {
+    try_files {path} {path}/ /parser.php?{query}
+  }
+
+  # Preflight at a friendly path
+  @preflight path /preflight
+  rewrite @preflight /tests/preflight.php
+
+  # Redirect old "home" to root
+  @oldhome path_regexp oldhome ^.*/home$
+  redir @oldhome / 301
+
+  # Previews mapping to actual files
+  @prev_default path /previews/default.mp4
+  rewrite @prev_default /f_data/data_userfiles/user_media/default.mp4
+
+  @prev_stream path_regexp prev_stream ^/previews/s/([^/]+)/([^/]+)\.mp4$
+  rewrite @prev_stream /f_data/data_userfiles/user_media/{re.prev_stream.1}/s/{re.prev_stream.2}.mp4
+
+  @prev_video path_regexp prev_video ^/previews/([^/]+)/([^/]+)\.mp4$
+  rewrite @prev_video /f_data/data_userfiles/user_media/{re.prev_video.1}/v/{re.prev_video.2}.mp4
+
+  # Block sensitive source/template/log files
+  @blocked {
+    path *.inc *.inc.php *.shtml *.cgi *.pl *.py *.asp *.aspx *.sh *.cin *.tpl *.tplb *.log
+  }
+  respond @blocked 403
+
+  # Static cache
+  @static_long {
+    path *.ico *.pdf *.flv *.gif *.jpg *.jpeg *.png *.svg *.webp *.css *.js *.eot *.woff *.otf *.ttf
+  }
+  header @static_long Cache-Control "public, max-age=604800"
+
+  handle_errors {
+    @notfound expression {http.error.status_code} == 404
+    rewrite @notfound /parser.php?error=404
+    php_fastcgi php:9000
+  }
+
+  header {
+    X-Content-Type-Options "nosniff"
+    Referrer-Policy "strict-origin-when-cross-origin"
+  }
+}

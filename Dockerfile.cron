@@ -1,0 +1,13 @@
+FROM php:8.2-cli
+
+RUN apt-get update && apt-get install -y cron && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /srv/viewshark
+
+COPY deploy/cron/crontab /etc/cron.d/viewshark
+COPY deploy/cron/init.sh /usr/local/bin/init-cron
+
+RUN chmod 0644 /etc/cron.d/viewshark \
+    && chmod +x /usr/local/bin/init-cron
+
+CMD ["/usr/local/bin/init-cron"]

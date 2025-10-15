@@ -1,0 +1,14 @@
+{
+	"status": "valid",
+	"contact": [
+		"mailto:hello@sami-ahmed.net"
+	],
+	"termsOfServiceAgreed": true,
+	"externalAccountBinding": {
+		"protected": "eyJhbGciOiJIUzI1NiIsImtpZCI6Ik5aMlg5M3pQMlVrLTBwWWpUZkpKWnciLCJ1cmwiOiJodHRwczovL2FjbWUuemVyb3NzbC5jb20vdjIvRFY5MC9uZXdBY2NvdW50In0",
+		"payload": "eyJjcnYiOiJQLTI1NiIsImt0eSI6IkVDIiwieCI6IkRvTi1kRUphX3Rfck1ZNU1ySzVpOWsyQ1dvM2xXdWc4aDZBUHFfX01MdEEiLCJ5IjoiX2d0bnA1Z0ZrRFlodThBUEh1d2paVFJZTnZFc3JhRlROSlR1SjJKNEFWRSJ9",
+		"signature": "SHUbLCptLfMBYvy7yTlNpwPG-VYUZBSBrPyd94FLsu4"
+	},
+	"orders": "https://acme.zerossl.com/v2/DV90/account/NZ2X93zP2Uk-0pYjTfJJZw/orders",
+	"location": "https://acme.zerossl.com/v2/DV90/account/NZ2X93zP2Uk-0pYjTfJJZw"
+}

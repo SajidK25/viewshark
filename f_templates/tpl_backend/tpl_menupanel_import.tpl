@@ -1,0 +1,1 @@
+                                            <li><a href="{$backend_url}/{href_entry key="be_import"}?t=video"{if $page_display eq "backend_tpl_import"} class="active"{/if}><i class="iconBe-arrow-right in-menu"></i>{lang_entry key="backend.menu.fu.grabber"}</a></li>

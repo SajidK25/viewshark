@@ -1,0 +1,107 @@
+[data-theme=blue], [data-theme=darkblue] {
+  --primary-color: #06a2cb;
+  --secondary-color: #0793e2; /* link hover */
+  --third-color: #92cefb; /* button hover */
+  --fourth-color: #06a2cb; /* follow button */
+  --checkbox: url(/f_scripts/shared/icheck/blue/images/blue.png);
+}
+
+[data-theme=red], [data-theme=darkred] {
+  --primary-color: #dd1e2f;
+  --secondary-color: #b51927; /* link hover */
+  --third-color: #e34654; /* button hover */
+  --fourth-color: #e03241; /* follow button */
+  --checkbox: url(/f_scripts/shared/icheck/blue/images/red.png);
+}
+
+[data-theme=cyan], [data-theme=darkcyan] {
+  --primary-color: #00997a;
+  --secondary-color: #007e64;
+  --third-color: #2eab92;
+  --fourth-color: #17a286;
+  --checkbox: url(/f_scripts/shared/icheck/blue/images/cyan.png);
+}
+
+[data-theme=green], [data-theme=darkgreen] {
+  --primary-color: #199900;
+  --secondary-color: #157e00;
+  --third-color: #42ab2e;
+  --fourth-color: #2da217;
+  --checkbox: url(/f_scripts/shared/icheck/blue/images/green.png);
+}
+
+[data-theme=orange], [data-theme=darkorange] {
+  --primary-color: #f28410;
+  --secondary-color: #c76d0e;
+  --third-color: #f49a3b;
+  --fourth-color: #f38f25;
+  --checkbox: url(/f_scripts/shared/icheck/blue/images/orange.png);
+}
+
+[data-theme=pink], [data-theme=darkpink] {
+  --primary-color: #ec7ab9;
+  --secondary-color: #c26498;
+  --third-color: #ef92c5;
+  --fourth-color: #ed86bf;
+  --checkbox: url(/f_scripts/shared/icheck/blue/images/pink.png);
+}
+
+[data-theme=purple], [data-theme=darkpurple] {
+  --primary-color: #b25c8b;
+  --secondary-color: #924c72;
+  --third-color: #c079a0;
+  --fourth-color: #b96a95;
+  --checkbox: url(/f_scripts/shared/icheck/blue/images/purple.png);
+}
+
+[data-theme=blue] .fe { --logo-image: url(/f_scripts/fe/img/logo-header-blue.png); --logo-symbol: url(/f_scripts/fe/img/logo-symbol-blue.png) }
+[data-theme=darkblue] .fe { --logo-image: url(/f_scripts/fe/img/logo-header-darkblue.png); --logo-symbol: url(/f_scripts/fe/img/logo-symbol-blue.png) }
+[data-theme=red] .fe { --logo-image: url(/f_scripts/fe/img/logo-header-red.png); --logo-symbol: url(/f_scripts/fe/img/logo-symbol-red.png) }
+[data-theme=darkred] .fe { --logo-image: url(/f_scripts/fe/img/logo-header-darkred.png); --logo-symbol: url(/f_scripts/fe/img/logo-symbol-red.png) }
+[data-theme=cyan] .fe { --logo-image: url(/f_scripts/fe/img/logo-header-cyan.png); --logo-symbol: url(/f_scripts/fe/img/logo-symbol-cyan.png) }
+[data-theme=darkcyan] .fe { --logo-image: url(/f_scripts/fe/img/logo-header-darkcyan.png); --logo-symbol: url(/f_scripts/fe/img/logo-symbol-cyan.png) }
+[data-theme=green] .fe { --logo-image: url(/f_scripts/fe/img/logo-header-green.png); --logo-symbol: url(/f_scripts/fe/img/logo-symbol-green.png) }
+[data-theme=darkgreen] .fe { --logo-image: url(/f_scripts/fe/img/logo-header-darkgreen.png); --logo-symbol: url(/f_scripts/fe/img/logo-symbol-green.png) }
+[data-theme=orange] .fe { --logo-image: url(/f_scripts/fe/img/logo-header-orange.png); --logo-symbol: url(/f_scripts/fe/img/logo-symbol-orange.png) }
+[data-theme=darkorange] .fe { --logo-image: url(/f_scripts/fe/img/logo-header-darkorange.png); --logo-symbol: url(/f_scripts/fe/img/logo-symbol-orange.png) }
+[data-theme=pink] .fe { --logo-image: url(/f_scripts/fe/img/logo-header-pink.png); --logo-symbol: url(/f_scripts/fe/img/logo-symbol-pink.png) }
+[data-theme=darkpink] .fe { --logo-image: url(/f_scripts/fe/img/logo-header-darkpink.png); --logo-symbol: url(/f_scripts/fe/img/logo-symbol-pink.png) }
+[data-theme=purple] .fe { --logo-image: url(/f_scripts/fe/img/logo-header-purple.png); --logo-symbol: url(/f_scripts/fe/img/logo-symbol-purple.png) }
+[data-theme=darkpurple] .fe { --logo-image: url(/f_scripts/fe/img/logo-header-darkpurple.png); --logo-symbol: url(/f_scripts/fe/img/logo-symbol-purple.png) }
+
+[data-theme=blue] .be { --logo-image: url(/f_scripts/be/img/logo-header-blue.png); --logo-symbol: url(/f_scripts/be/img/logo-symbol-blue.png) }
+[data-theme=darkblue] .be { --logo-image: url(/f_scripts/be/img/logo-header-darkblue.png); --logo-symbol: url(/f_scripts/be/img/logo-symbol-blue.png) }
+[data-theme=red] .be { --logo-image: url(/f_scripts/be/img/logo-header-red.png); --logo-symbol: url(/f_scripts/be/img/logo-symbol-red.png) }
+[data-theme=darkred] .be { --logo-image: url(/f_scripts/be/img/logo-header-darkred.png); --logo-symbol: url(/f_scripts/be/img/logo-symbol-red.png) }
+[data-theme=cyan] .be { --logo-image: url(/f_scripts/be/img/logo-header-cyan.png); --logo-symbol: url(/f_scripts/be/img/logo-symbol-cyan.png) }
+[data-theme=darkcyan] .be { --logo-image: url(/f_scripts/be/img/logo-header-darkcyan.png); --logo-symbol: url(/f_scripts/be/img/logo-symbol-cyan.png) }
+[data-theme=green] .be { --logo-image: url(/f_scripts/be/img/logo-header-green.png); --logo-symbol: url(/f_scripts/be/img/logo-symbol-green.png) }
+[data-theme=darkgreen] .be { --logo-image: url(/f_scripts/be/img/logo-header-darkgreen.png); --logo-symbol: url(/f_scripts/be/img/logo-symbol-green.png) }
+[data-theme=orange] .be { --logo-image: url(/f_scripts/be/img/logo-header-orange.png); --logo-symbol: url(/f_scripts/be/img/logo-symbol-orange.png) }
+[data-theme=darkorange] .be { --logo-image: url(/f_scripts/be/img/logo-header-darkorange.png); --logo-symbol: url(/f_scripts/be/img/logo-symbol-orange.png) }
+[data-theme=pink] .be { --logo-image: url(/f_scripts/be/img/logo-header-pink.png); --logo-symbol: url(/f_scripts/be/img/logo-symbol-pink.png) }
+[data-theme=darkpink] .be { --logo-image: url(/f_scripts/be/img/logo-header-darkpink.png); --logo-symbol: url(/f_scripts/be/img/logo-symbol-pink.png) }
+[data-theme=purple] .be { --logo-image: url(/f_scripts/be/img/logo-header-purple.png); --logo-symbol: url(/f_scripts/be/img/logo-symbol-purple.png) }
+[data-theme=darkpurple] .be { --logo-image: url(/f_scripts/be/img/logo-header-darkpurple.png); --logo-symbol: url(/f_scripts/be/img/logo-symbol-purple.png) }
+
+.fe {
+  --logo-image-width: 180px;
+  --logo-image-height: 32px;
+  --logo-symbol-width: 43px;
+  --logo-symbol-height: 36px;
+  --logo-container: 288px;
+  --logo-margin: 10px 0 13px 15px;
+
+  @media(max-width:690px) {
+    #logo_container{--logo-container:260px}
+  }
+  @media(max-width:520px) {
+    #logo_container{--logo-container:115px}
+  }
+}
+.be {
+  --logo-image-width: 200px;
+  --logo-image-height: 36px;
+  --logo-symbol-width: 43px;
+  --logo-symbol-height: 36px;
+}

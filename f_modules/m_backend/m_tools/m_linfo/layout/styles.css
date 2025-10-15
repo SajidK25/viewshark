@@ -1,0 +1,141 @@
+/*body { font-family: arial, sans-serif; background-color: #fff; color: #000; font-size: 12px;}*/
+table { border-collapse: collapse; width: 100%; }
+/*table th { font-weight: normal; color: #444; }*/
+table th, table td {
+	border-right: 1px solid #c3c3c3; border-left: 1px solid #c3c3c3;
+	border-bottom: 1px solid #c3c3c3; padding: 4px; background-color: #eee;
+}
+table tr th, table tr.alt td { background-color: #ddd;}
+
+.infoTable { margin: 0px; padding: 0px;}
+
+.infoTable h2 {
+	display: none;
+	margin: 0px;
+	padding: 0px;
+	color: #000;
+	font-weight: normal;
+/*	text-shadow: #2665a7 1px 1px 1px;*/
+/*	border: 1px solid #4a8fd6;*/
+	border: 1px solid #c3c3c3;
+	background-color: #D6E1F5;
+	border-top-left-radius: 3px;
+	border-top-right-radius: 3px;
+	-moz-border-radius-topleft: 3px;
+	-moz-border-radius-topright: 3px;
+}
+.collapsed h2 {
+	border-bottom-left-radius: 3px;
+	border-bottom-right-radius: 3px; 
+	-moz-border-radius-bottomleft: 3px;
+	-moz-border-radius-bottomright: 3px; 
+}
+.collapsed table {
+	display: none;
+}
+/*
+span.toggler{
+    color: #666 !important;
+    font-size: 1em !important;
+    margin-right: 3px;
+}*/
+/*#foot { margin: 15px 0px 20px 15px; color: #444; float: left; }*/
+/*#foot_time {margin: 15px 15px 20px 0px; color: #444; float: right; vertical-align: bottom; }*/
+#foot_time{ margin-bottom: 10px; }
+.infoTable h1 { font-size: 1.6em; margin: 0; padding: 0; }
+.infoTable h2 { font-size: 1.1em; margin-top: 0px !important; margin-bottom: 0px !important;}
+.col4 { overflow: hidden;}
+.col4 .col { float: left; width: 50%;}
+#info .center {text-align: center;}
+td.none { text-align: center; font-size: 12px; padding: 10px; color: #666; background-color: #f3f3f3; }
+span.perc, span.faded {color: #666;}
+span.caption {font-size: 90%;}
+td ul {margin: 0; padding: 0;}
+td ul li {list-style-type: square; padding: 0; margin-left: 15px; margin-top: 0; margin-bottom: 0; margin-right: 0;}
+.raid_normal {color: green;}
+.raid_spare {color: blue;}
+.raid_failed {color: maroon;}
+.raid_unknown {color: purple;}
+.margin_auto {margin: auto;}
+table.mini {padding: 0; font-size: 90%; border-collapse: collapse;  }
+table.mini th, table.mini td {margin: 0; padding: 0; border: none;}
+table.mini th {background-color: inherit;}
+.net_up {color: green;}
+.net_down {color: maroon;}
+.net_unknown {color: purple;}
+#errorList, #timerList {font-size: 75%; margin-top: 15px; margin-bottom: 15px;}
+.bar_chart { position: relative; margin: auto;}
+.bar_inner {
+	border-radius: 2px;
+	-moz-border-radius: 2px;
+	height: 18px;
+	background-color: #b7cce2; }
+.bar_text { position: absolute; line-height: 18px;
+	font-size: 12px; text-indent: 2px; text-align: center; width: 100%; }
+.alt .bar_inner { background-color: #96b4d5; }
+.service_up {color: green;}
+.service_down {color: maroon;}
+.service_zombie {color: orange;}
+span.toggler {
+	line-height: 24px;
+	color: #666;
+	float: right;
+	/* "Courier New" is More consistent cross-browser than monospace */
+	font-family: "Courier New";
+	cursor: pointer;
+	font-weight: bold;
+	font-size: 1em;
+	padding-top: .2em;
+	padding-right: .5em;
+}
+.infoTable span.toggler:hover {
+	color: white;
+}
+.header {
+	padding: 0px 0px 0px 15px;
+	float: left;
+}
+.subtitle {
+	color: #999;
+	font-size: 12px;
+}
+.time {
+	padding: 5px 15px 0px 0px;
+	color: #999;
+	float: right;
+	text-align: right;
+}
+
+/* For extensions that have extra stuff to the right */
+.col2_side {overflow: hidden;}
+.col2_side_left {float: left; width: 80%;}
+.col2_side_right {float: left; width: 20%;}
+
+.infoTable table {
+    color: rgba(0,0,0,0.88);
+    font-family: "Roboto",Arial,sans-serif;
+    font-size: 14px;
+    font-weight: 300;
+}
+.infoTable table th {
+    font-weight: bold;
+}
+.infoTable table tr th, .infoTable table tr.alt td {
+    background-color: #f8f8f8;
+}
+.infoTable table th, .infoTable table td {
+    border: 1px solid #d8dbdd;
+    padding: 4px;
+    background-color: #fff;
+}
+.bar_inner {
+    border-radius: 2px;
+    -moz-border-radius: 2px;
+    height: 18px;
+    background-color: #9fdaea !important;
+    color: #222;
+}
+.black {
+	color: #444;
+	font-weight: bold;
+}

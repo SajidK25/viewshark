@@ -1,0 +1,5 @@
+{
+    "require": {
+        "proxycheck/proxycheck-php": "^0.2.2"
+    }
+}

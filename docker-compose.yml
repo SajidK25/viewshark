@@ -1,0 +1,114 @@
+version: "3.8"
+
+services:
+  db:
+    image: mariadb:10.6
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: viewshark
+      MYSQL_USER: viewshark
+      MYSQL_PASSWORD: viewshark
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./__install/viewshark.sql.gz:/docker-entrypoint-initdb.d/1-viewshark.sql.gz:ro
+      - ./__install/updatedb_site.sql:/docker-entrypoint-initdb.d/2-updatedb_site.sql:ro
+      - ./__install/updatedb_chat.sql:/docker-entrypoint-initdb.d/3-updatedb_chat.sql:ro
+      - ./deploy/init_settings.sql:/docker-entrypoint-initdb.d/4-init_settings.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -proot --silent || exit 1"]
+      start_period: 120s
+      interval: 10s
+      timeout: 5s
+      retries: 30
+
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile.php
+    working_dir: /srv/viewshark
+    environment:
+      TZ: UTC
+      DB_HOST: db
+      DB_NAME: viewshark
+      DB_USER: viewshark
+      DB_PASS: viewshark
+      PREFLIGHT_ENABLE: "1"
+      MAIN_URL: https://test.watchmaji.com
+    volumes:
+      - ./:/srv/viewshark
+      - rtmp_hls:/var/www/hls:ro
+      - rtmp_rec:/mnt/rec:ro
+
+  caddy:
+    image: caddy:2-alpine
+    depends_on:
+      db:
+        condition: service_healthy
+      php:
+        condition: service_started
+      srs:
+        condition: service_started
+    ports:
+      - "81:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./:/srv/viewshark:ro
+      - rtmp_hls:/var/www/hls:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+  srs:
+    image: ossrs/srs:5
+    container_name: vs-srs
+    ports:
+      - "1935:1935"   # RTMP ingest
+    volumes:
+      - ./deploy/srs.conf:/usr/local/srs/conf/srs.conf:ro
+      - rtmp_hls:/srs/hls
+      - rtmp_rec:/srs/rec
+    command: ["/usr/local/srs/objs/srs", "-c", "/usr/local/srs/conf/srs.conf"]
+    restart: unless-stopped
+
+  cron:
+    build:
+      context: .
+      dockerfile: Dockerfile.cron
+    depends_on:
+      php:
+        condition: service_started
+    environment:
+      TZ: UTC
+      DB_HOST: db
+      DB_NAME: viewshark
+      DB_USER: viewshark
+      DB_PASS: viewshark
+      CRON_BASE_URL: https://test.watchmaji.com
+      CRON_SSK: IOpeCV5jyJ6SIbg2ySIB5os5RX3a1a9LIjyJmGfShcPovdx43GmBHgsJTXbo71CD4df4oFKikCZxJS4f
+      VOD_REC_PATH: /mnt/rec
+    volumes:
+      - ./:/srv/viewshark
+      - rtmp_rec:/mnt/rec:ro
+  abr:
+    image: jrottenberg/ffmpeg:5.1-ubuntu
+    container_name: vs-abr
+    entrypoint: ["/bin/bash"]
+    command: ["/abr.sh"]
+    depends_on:
+      srs:
+        condition: service_started
+    environment:
+      ABR_STREAM_KEY: testkey
+    volumes:
+      - rtmp_hls:/var/www/hls
+      - ./deploy/abr.sh:/abr.sh:ro
+    restart: unless-stopped
+
+volumes:
+  db_data:
+  rtmp_hls:
+  rtmp_rec:
+  caddy_data:
+  caddy_config:

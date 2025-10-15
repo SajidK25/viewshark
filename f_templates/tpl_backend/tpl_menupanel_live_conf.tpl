@@ -1,0 +1,1 @@
+							<li><a href="javascript:;" id="backend-menu-entry2-sub23" class="menu-panel-entry-sub be-panel" rel-m="{href_entry key="be_settings"}"><i class="iconBe-arrow-right in-menu"></i>{lang_entry key="backend.menu.sc.live"}</a></li>

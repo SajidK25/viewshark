@@ -1,0 +1,85 @@
+.cbp-spmenu-push {
+	width: 100%;
+	min-height: 740px;
+}
+.push-part {
+	width: calc(100% - 60px);
+}
+.push-full {
+	width: calc(100% - 300px);
+}
+
+.blue .accordion { 
+	border-top: 1px solid #013d6c; 
+	border-right: 1px solid #013d6c; 
+	border-left: 1px solid #013d6c;
+	font-size: 16px;
+	border-bottom: 1px solid #282b30 !important;  
+}
+.blue .accordion, .blue .accordion li {
+	margin: 0; 
+	padding: 0; 
+	border: none;
+}
+.blue .accordion a {
+	padding: 0px; 
+	background: #181a1d; 
+	text-decoration:none; 
+	display: block; 
+	color: #9398a2;
+	border-bottom: 1px solid #0c0d0f; 
+	border-top: 1px solid #282b30;
+	height: 60px;
+	overflow: hidden;
+}
+.blue .accordion ul li a {
+	padding-left: 60px;
+	height: 30px;
+	line-height: 30px;
+	font-size: 14px;
+	border: none;
+}
+/*.blue .accordion ul li a::before {
+	font-family: 'icomoonBe';
+	speak: none;
+	font-style: normal;
+	font-weight: normal;
+	font-variant: normal;
+	text-transform: none;
+	line-height: 1;
+
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	content: "\f03e";
+	margin-right: 3px;
+	font-size: 16px;
+}*/
+.blue .accordion ul li a.sub_menu::before {
+	font-family: 'icomoonBe';
+	speak: none;
+	font-style: normal;
+	font-weight: normal;
+	font-variant: normal;
+	text-transform: none;
+	line-height: 1;
+
+	/* Better Font Rendering =========== */
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	content: "\e605";
+	margin-right: 5px;
+	margin-left: -1px;
+	font-size: 10px;
+}
+
+.blue .accordion a.dcjq-parent.active {
+/*	background: #25272b url(images/checkers.png) repeat 0 0;*/
+	color: white;
+}
+.blue .accordion a:hover {
+	background: #25272b;
+	color: white;
+}
+.blue .accordion a:active{
+
+}

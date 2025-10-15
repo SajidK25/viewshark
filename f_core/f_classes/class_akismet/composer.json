@@ -1,0 +1,5 @@
+{
+    "require": {
+        "fyrts/akismet": "^1.1"
+    }
+}

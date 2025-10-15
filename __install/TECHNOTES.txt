@@ -1,0 +1,4 @@
+- ADOdb @version 5.22.7
+- Smarty @version 4.5.3
+- PHP Mailer @version 6.9.1
+- jQuery @version 3.7.1

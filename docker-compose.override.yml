@@ -1,0 +1,33 @@
+version: "3.8"
+
+services:
+  db:
+    volumes:
+      # - E:/docker-progs/viewshark/db_data:/var/lib/mysql
+      - ./viewshark/db_data:/var/lib/mysql
+
+
+
+  php:
+    volumes:
+      # - E:/docker-progs/viewshark/hls:/var/www/hls:ro
+      # - E:/docker-progs/viewshark/rec:/mnt/rec:ro
+      - ./viewshark/hls:/var/www/hls:ro
+      - ./viewshark/rec:/mnt/rec:ro
+
+  caddy:
+    volumes:
+      # - E:/docker-progs/viewshark/hls:/var/www/hls:ro
+      # - E:/docker-progs/viewshark/caddy_data:/data
+      # - E:/docker-progs/viewshark/caddy_config:/config
+      - ./viewshark/hls:/var/www/hls:ro
+      - ./viewshark/caddy_data:/data
+      - ./viewshark/caddy_config:/config
+
+  srs:
+    volumes:
+      # - E:/docker-progs/viewshark/hls:/srs/hls
+      # - E:/docker-progs/viewshark/rec:/srs/rec
+      - ./viewshark/hls:/srs/hls
+      - ./viewshark/rec:/srs/rec
+
