@@ -1,5 +1,6 @@
 {
   email hello@sami-ahmed.net
+  debug
 }
 
   https://test.watchmaji.com {
@@ -23,12 +24,15 @@
   # Rewrite root to index.php
   @root path /
   rewrite @root /index.php
-
+  
   # PHP with fallback to parser.php
   php_fastcgi php:9000 {
     try_files {path} {path}/ /parser.php?{query}
   }
-
+  tls {
+    protocols tls1.2 tls1.3  # Modern, Chrome-compatible
+    ciphers TLS_AES_128_GCM_SHA256 TLS_CHACHA20_POLY1305_SHA256 TLS_AES_256_GCM_SHA384  # Secure defaults
+  } 
   # Preflight at a friendly path
   @preflight path /preflight
   rewrite @preflight /tests/preflight.php
