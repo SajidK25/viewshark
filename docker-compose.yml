@@ -9,7 +9,7 @@ services:
       MYSQL_USER: viewshark
       MYSQL_PASSWORD: viewshark
     ports:
-      - "3307:3306"
+      - "3306:3306"
     volumes:
       - db_data:/var/lib/mysql
       - ./__install/viewshark.sql.gz:/docker-entrypoint-initdb.d/1-viewshark.sql.gz:ro
@@ -51,7 +51,7 @@ services:
       srs:
         condition: service_started
     ports:
-      - "81:80"
+      - "80:80"
       - "443:443"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
