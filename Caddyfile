@@ -21,6 +21,10 @@
     file_server
   }
 
+  # Rewrite root to index.php
+  @root path /
+  rewrite @root /index.php
+  
   # PHP with fallback to parser.php
   php_fastcgi php:9000 {
     try_files {path} {path}/ /parser.php?{query}
