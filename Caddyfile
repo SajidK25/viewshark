@@ -3,10 +3,19 @@
   debug
 }
 
-  https://test.watchmaji.com {
+https://test.watchmaji.com {
+  tls {
+    protocols tls1.2 tls1.3
+    ciphers TLS_AES_128_GCM_SHA256 TLS_CHACHA20_POLY1305_SHA256
+  }
+
   root * /srv/viewshark
   encode zstd gzip
   file_server
+
+  # Rewrite root to index.php
+  @root path /
+  rewrite @root /index.php
 
   # Admin panel routing -> backend parser
   @admin path /admin /admin/*
@@ -21,18 +30,11 @@
     file_server
   }
 
-  # Rewrite root to index.php
-  @root path /
-  rewrite @root /index.php
-  
   # PHP with fallback to parser.php
   php_fastcgi php:9000 {
     try_files {path} {path}/ /parser.php?{query}
   }
-  tls {
-    protocols tls1.2 tls1.3  # Modern, Chrome-compatible
-    ciphers TLS_AES_128_GCM_SHA256 TLS_CHACHA20_POLY1305_SHA256 TLS_AES_256_GCM_SHA384  # Secure defaults
-  } 
+
   # Preflight at a friendly path
   @preflight path /preflight
   rewrite @preflight /tests/preflight.php
