@@ -3,21 +3,19 @@ version: "3.8"
 services:
   db:
     volumes:
-      # - E:/docker-progs/easystream/db_data:/var/lib/mysql
-      - ./easystream/db_data:/var/lib/mysql
-
-
+      # - E:/docker-progs/viewshark/db_data:/var/lib/mysql
+      - ./viewshark/db_data:/var/lib/mysql
 
   php:
     volumes:
-      # - E:/docker-progs/easystream/hls:/var/www/hls:ro
-      # - E:/docker-progs/easystream/rec:/mnt/rec:ro
-      - ./easystream/hls:/var/www/hls:ro
-      - ./easystream/rec:/mnt/rec:ro
+      # - E:/docker-progs/viewshark/hls:/var/www/hls:ro
+      # - E:/docker-progs/viewshark/rec:/mnt/rec:ro
+      - ./viewshark/hls:/var/www/hls:ro
+      - ./viewshark/rec:/mnt/rec:ro
 
   caddy:
     volumes:
-      # - E:/docker-progs/easystream/hls:/var/www/hls:ro
+      # - E:/docker-progs/viewshark/hls:/var/www/hls:ro
       # - E:/docker-progs/viewshark/caddy_data:/data
       # - E:/docker-progs/viewshark/caddy_config:/config
       - ./viewshark/hls:/var/www/hls:ro
@@ -30,4 +28,3 @@ services:
       # - E:/docker-progs/viewshark/rec:/srs/rec
       - ./viewshark/hls:/srs/hls
       - ./viewshark/rec:/srs/rec
-
