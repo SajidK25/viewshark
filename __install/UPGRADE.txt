@@ -1,4 +1,4 @@
---> ViewShark Upgrade Instructions <--
+--> EasyStream Upgrade Instructions <--
 
 *** Upgrading FROM 3.x to 4.0 ***
 
@@ -71,4 +71,4 @@ ___	How to perform the upgrade: ___
   		- /usr/local/bin/php updatedb.php fdata doc responses
   		- /usr/local/bin/php updatedb.php fdata blog responses
 
-    For support, please contact us at: support@viewshark.com / viewshark@gmail.com
+    For support, please contact us at: support@easystream.com

@@ -74,7 +74,7 @@ http_response_code(404);
 </head>
 <body>
 	<div class="logo">
-		<a href="/"><img src="/f_scripts/fe/img/logo-header-blue.png"></a>
+		<a href="/"><img src="/f_scripts/fe/img/logo-header-blue.svg" alt="EasyStream - Smiling Cloud Streaming"></a>
 	</div>
 	<div class="wrap">
 		<h1>404 - Page Not Found</h1>

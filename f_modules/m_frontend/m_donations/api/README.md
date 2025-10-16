@@ -1,6 +1,6 @@
-# ViewShark Donations API Documentation
+# EasyStream Donations API Documentation
 
-This API allows external applications to interact with the ViewShark donation system. All requests require authentication using an API key.
+This API allows external applications to interact with the EasyStream donation system. All requests require authentication using an API key.
 
 ## Authentication
 

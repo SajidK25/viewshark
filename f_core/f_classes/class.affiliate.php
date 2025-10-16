@@ -1,18 +1,16 @@
 <?php
 /*******************************************************************************************************************
-| Software Name        : ViewShark
+| Software Name        : EasyStream
 | Software Description : High End YouTube Clone Script with Videos, Shorts, Streams, Images, Audio, Documents, Blogs
-| Software Author      : (c) ViewShark
-| Website              : https://www.viewshark.com
-| E-mail               : support@viewshark.com || viewshark@gmail.com
+| Software Author      : (c) Sami Ahmed
 |*******************************************************************************************************************
 |
 |*******************************************************************************************************************
-| This source file is subject to the ViewShark End-User License Agreement, available online at:
-| https://www.viewshark.com/support/license/
+| This source file is subject to the EasyStream Proprietary License Agreement.
+| 
 | By using this software, you acknowledge having read this Agreement and agree to be bound thereby.
 |*******************************************************************************************************************
-| Copyright (c) 2013-2018 viewshark.com. All rights reserved.
+| Copyright (c) 2025 Sami Ahmed. All rights reserved.
 |*******************************************************************************************************************/
 
 defined('_ISVALID') or header('Location: /error');

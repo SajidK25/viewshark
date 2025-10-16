@@ -1,8 +1,8 @@
---> ViewShark Add-on - Video Grabber Module <--
---> ViewShark Add-on - Multi Server CDN Module <--
---> ViewShark Add-on - Multimedia Module <--
---> ViewShark Add-on - Live Streaming Module <--
---> ViewShark Add-on - Live Streaming Token Add-on <--
+--> EasyStream Add-on - Video Grabber Module <--
+--> EasyStream Add-on - Multi Server CDN Module <--
+--> EasyStream Add-on - Multimedia Module <--
+--> EasyStream Add-on - Live Streaming Module <--
+--> EasyStream Add-on - Live Streaming Token Add-on <--
 
 The module files come preloaded/installed with the application.
 

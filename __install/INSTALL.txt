@@ -1,8 +1,8 @@
---> ViewShark Installation Instructions <--
+--> EasyStream Installation Instructions <--
 
 1. Unpack the archive and upload all files to your public_html location.
 
-2. Create new database and import installation .sql file (viewshark.sql.gz).
+2. Create new database and import installation .sql file (easystream.sql.gz).
 
 3. Edit f_core/config.database.php and set details for database connectivity.
 

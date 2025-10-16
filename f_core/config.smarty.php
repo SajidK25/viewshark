@@ -1,18 +1,16 @@
 <?php
 /*******************************************************************************************************************
-| Software Name        : ViewShark
+| Software Name        : EasyStream
 | Software Description : High End YouTube Clone Script with Videos, Shorts, Streams, Images, Audio, Documents, Blogs
-| Software Author      : (c) ViewShark
-| Website              : https://www.viewshark.com
-| E-mail               : support@viewshark.com || viewshark@gmail.com
+| Software Author      : (c) Sami Ahmed
 |*******************************************************************************************************************
 |
 |*******************************************************************************************************************
-| This source file is subject to the ViewShark End-User License Agreement, available online at:
-| https://www.viewshark.com/support/license/
+| This source file is subject to the EasyStream Proprietary License Agreement.
+| 
 | By using this software, you acknowledge having read this Agreement and agree to be bound thereby.
 |*******************************************************************************************************************
-| Copyright (c) 2013-2024 viewshark.com. All rights reserved.
+| Copyright (c) 2025 Sami Ahmed. All rights reserved.
 |*******************************************************************************************************************/
 
 defined('_ISVALID') or header('Location: /error');
@@ -42,7 +40,7 @@ $smarty->assign('media_files_url', $cfg["media_files_url"]);
 $smarty->assign('profile_images_url', $cfg["profile_images_url"]);
 $smarty->assign('logging_dir', $cfg["logging_dir"]);
 // Fixed: Use null coalescing to prevent undefined key warning
-$smarty->assign('new_layout', $cfg["new_layout"] ?? 'default');
+$smarty->assign('new_layout', $cfg["new_layout"] ?? '1');
 
 $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
 $smarty->assign('is_mobile', (strpos($_SERVER['HTTP_USER_AGENT'], 'Mobile') ? true : (strpos($_SERVER['HTTP_USER_AGENT'], 'iPad') ? true : (strpos($_SERVER['HTTP_USER_AGENT'], 'iPhone') ? true : false))));

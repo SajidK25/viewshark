@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+  <rect width="60" height="60" rx="13" fill="#4A90E2"/>
+  
+  <!-- Cloud -->
+  <g transform="translate(30, 15)">
+    <!-- Cloud body -->
+    <ellipse cx="0" cy="0" rx="18" ry="9" fill="#FFFFFF"/>
+    <circle cx="-11" cy="-2" r="6" fill="#FFFFFF"/>
+    <circle cx="11" cy="-2" r="6" fill="#FFFFFF"/>
+    <circle cx="-5" cy="-5" r="4" fill="#FFFFFF"/>
+    <circle cx="5" cy="-5" r="4" fill="#FFFFFF"/>
+    
+    <!-- Cloud smile -->
+    <path d="M -5 2 Q 0 5 5 2" stroke="#4A90E2" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    
+    <!-- Cloud eyes -->
+    <circle cx="-3" cy="-1" r="1.5" fill="#4A90E2"/>
+    <circle cx="3" cy="-1" r="1.5" fill="#4A90E2"/>
+  </g>
+  
+  <!-- PC Monitor -->
+  <g transform="translate(30, 41)">
+    <!-- Monitor screen -->
+    <rect x="-15" y="-7" width="30" height="10" rx="1" fill="#2C3E50"/>
+    <rect x="-13" y="-5" width="26" height="6" rx="0.5" fill="#34495E"/>
+    
+    <!-- Screen content -->
+    <rect x="-11" y="-4" width="3" height="0.8" fill="#4A90E2"/>
+    <rect x="-11" y="-2.5" width="5" height="0.4" fill="#7FB3D3"/>
+    <rect x="-4" y="-4" width="2.5" height="2.5" fill="#5DADE2"/>
+    <rect x="-1" y="-4" width="3" height="0.8" fill="#4A90E2"/>
+    
+    <!-- Monitor stand -->
+    <rect x="-1.5" y="3" width="3" height="5" fill="#34495E"/>
+    <rect x="-7.5" y="8" width="15" height="2" rx="0.5" fill="#2C3E50"/>
+  </g>
+</svg>

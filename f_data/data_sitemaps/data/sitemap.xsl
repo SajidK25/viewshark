@@ -101,7 +101,7 @@
 					</table>
 				</div>
 				<div id="footer">
-					Generated with <a href="https://www.viewshark.com/" title="Google Sitemap Generator for ViewShark">Google Sitemap Generator for ViewShark</a>
+					Generated with Google Sitemap Generator for EasyStream
 				</div>
 			</body>
 		</html>

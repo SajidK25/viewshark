@@ -5,14 +5,14 @@ services:
     image: mariadb:10.6
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: viewshark
-      MYSQL_USER: viewshark
-      MYSQL_PASSWORD: viewshark
+      MYSQL_DATABASE: easystream
+      MYSQL_USER: easystream
+      MYSQL_PASSWORD: easystream
     ports:
       - "3306:3306"
     volumes:
       - db_data:/var/lib/mysql
-      - ./__install/viewshark.sql.gz:/docker-entrypoint-initdb.d/1-viewshark.sql.gz:ro
+      - ./__install/easystream.sql.gz:/docker-entrypoint-initdb.d/1-easystream.sql.gz:ro
       - ./__install/updatedb_site.sql:/docker-entrypoint-initdb.d/2-updatedb_site.sql:ro
       - ./__install/updatedb_chat.sql:/docker-entrypoint-initdb.d/3-updatedb_chat.sql:ro
       - ./deploy/init_settings.sql:/docker-entrypoint-initdb.d/4-init_settings.sql:ro
@@ -27,17 +27,17 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.php
-    working_dir: /srv/viewshark
+    working_dir: /srv/easystream
     environment:
       TZ: UTC
       DB_HOST: db
-      DB_NAME: viewshark
-      DB_USER: viewshark
-      DB_PASS: viewshark
+      DB_NAME: easystream
+      DB_USER: easystream
+      DB_PASS: easystream
       PREFLIGHT_ENABLE: "1"
       MAIN_URL: https://test.watchmaji.com
     volumes:
-      - ./:/srv/viewshark
+      - ./:/srv/easystream
       - rtmp_hls:/var/www/hls:ro
       - rtmp_rec:/mnt/rec:ro
 
@@ -55,7 +55,7 @@ services:
       - "443:443"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - ./:/srv/viewshark:ro
+      - ./:/srv/easystream:ro
       - rtmp_hls:/var/www/hls:ro
       - caddy_data:/data
       - caddy_config:/config
@@ -82,14 +82,14 @@ services:
     environment:
       TZ: UTC
       DB_HOST: db
-      DB_NAME: viewshark
-      DB_USER: viewshark
-      DB_PASS: viewshark
+      DB_NAME: easystream
+      DB_USER: easystream
+      DB_PASS: easystream
       CRON_BASE_URL: https://test.watchmaji.com
       CRON_SSK: IOpeCV5jyJ6SIbg2ySIB5os5RX3a1a9LIjyJmGfShcPovdx43GmBHgsJTXbo71CD4df4oFKikCZxJS4f
       VOD_REC_PATH: /mnt/rec
     volumes:
-      - ./:/srv/viewshark
+      - ./:/srv/easystream
       - rtmp_rec:/mnt/rec:ro
   abr:
     image: jrottenberg/ffmpeg:5.1-ubuntu

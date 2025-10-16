@@ -1,6 +1,6 @@
-# ViewShark Donations Module
+# EasyStream Donations Module
 
-A comprehensive donation system for ViewShark with Square integration, analytics, goals, and notifications.
+A comprehensive donation system for EasyStream with Square integration, analytics, goals, and notifications.
 
 ## Structure
 ```
@@ -32,7 +32,7 @@ m_donations/
 ## Installation
 1. Copy module files:
    ```bash
-   cp -r m_donations/ /path/to/viewshark/f_modules/m_frontend/
+   cp -r m_donations/ /path/to/easystream/f_modules/m_frontend/
    ```
 
 2. Import database:
@@ -77,9 +77,7 @@ m_donations/
 - Integration tests: `phpunit tests/integration/`
 
 ## Support
-- Email: support@viewshark.com
-- Docs: https://docs.viewshark.com/donations
-- Issues: https://github.com/viewshark/donations/issues
+Contact: Sami Ahmed
 
 ## License
-ViewShark License Agreement 
+EasyStream License Agreement 

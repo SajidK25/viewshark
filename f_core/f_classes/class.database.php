@@ -1,18 +1,16 @@
 <?php
 /*******************************************************************************************************************
-| Software Name        : ViewShark
+| Software Name        : EasyStream
 | Software Description : High End YouTube Clone Script with Videos, Shorts, Streams, Images, Audio, Documents, Blogs
-| Software Author      : (c) ViewShark
-| Website              : https://www.viewshark.com
-| E-mail               : support@viewshark.com || viewshark@gmail.com
+| Software Author      : (c) Sami Ahmed
 |*******************************************************************************************************************
 |
 |*******************************************************************************************************************
-| This source file is subject to the ViewShark End-User License Agreement, available online at:
-| https://www.viewshark.com/support/license/
+| This source file is subject to the EasyStream Proprietary License Agreement.
+| 
 | By using this software, you acknowledge having read this Agreement and agree to be bound thereby.
 |*******************************************************************************************************************
-| Copyright (c) 2013-2024 viewshark.com. All rights reserved.
+| Copyright (c) 2025 Sami Ahmed. All rights reserved.
 |*******************************************************************************************************************/
 
 defined('_ISVALID') or header('Location: /error');
@@ -26,21 +24,66 @@ class VDatabase
 
         $db = &ADONewConnection($cfg_dbtype);
         if (!$db->Connect($cfg_dbhost, $cfg_dbuser, $cfg_dbpass, $cfg_dbname)) {
+            // Log database connection error
+            $logger = VLogger::getInstance();
+            $logger->logDatabaseError('Database connection failed', '', [
+                'host' => $cfg_dbhost,
+                'database' => $cfg_dbname,
+                'user' => $cfg_dbuser
+            ]);
+            
             die('<b>Error: </b> A database connection could not be established.');
         } else {
             //$db->debug = true;
             return $db;
         }
     }
-    /* retrieve value of one database field */
+    /* retrieve value of one database field - SECURE VERSION */
     public function singleFieldValue($db_table, $get_value, $where_field, $where_value, $cache_time = false)
     {
         global $db;
 
-        $sql = sprintf("SELECT `%s` FROM `%s` WHERE `%s`='%s' LIMIT 1;", $get_value, $db_table, $where_field, $where_value);
-        $q   = $cache_time > 0 ? $db->CacheExecute($cache_time, $sql) : $db->execute($sql);
+        try {
+            // Validate table and field names (whitelist approach)
+            if (!$this->isValidTableName($db_table) || !$this->isValidFieldName($get_value) || !$this->isValidFieldName($where_field)) {
+                throw new InvalidArgumentException('Invalid table or field name');
+            }
 
-        return $q->fields[$get_value];
+            $sql = "SELECT `{$get_value}` FROM `{$db_table}` WHERE `{$where_field}` = ? LIMIT 1";
+            $q   = $cache_time > 0 ? $db->CacheExecute($cache_time, $sql, array($where_value)) : $db->Execute($sql, array($where_value));
+
+            if (!$q) {
+                $logger = VLogger::getInstance();
+                $logger->logDatabaseError($db->ErrorMsg(), $sql, [$where_value]);
+                return null;
+            }
+
+            return $q && !$q->EOF ? $q->fields[$get_value] : null;
+        } catch (Exception $e) {
+            $logger = VLogger::getInstance();
+            $logger->logDatabaseError($e->getMessage(), $sql ?? '', [$where_value ?? '']);
+            throw $e;
+        }
+    }
+    
+    /* validate table name against whitelist */
+    private function isValidTableName($table)
+    {
+        // Add your actual table names here
+        $allowedTables = [
+            'db_settings', 'db_conversion', 'db_videofiles', 'db_livefiles', 
+            'db_accountuser', 'db_trackactivity', 'db_imagefiles', 'db_audiofiles',
+            'db_documentfiles', 'db_blogfiles', 'db_comments', 'db_responses',
+            'db_playlists', 'db_subscriptions', 'db_categories', 'db_channels'
+        ];
+        return in_array($table, $allowedTables);
+    }
+    
+    /* validate field name */
+    private function isValidFieldName($field)
+    {
+        // Only allow alphanumeric characters and underscores
+        return preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $field);
     }
     /* insert a single entry */
     public function singleInsert($db_table, $set_field, $set_value)
@@ -89,28 +132,59 @@ class VDatabase
         $opened_entry = VGenerate::keepEntryOpen();
         return $count;
     }
-    /* update table field values from $_POST['hc_id'] */
-    public function doUpdate($db_table, $db_field, $update_array)
+    /* update table field values - SECURE VERSION */
+    public function doUpdate($db_table, $db_field, $update_array, $id_value = null)
     {
         global $db;
 
-        if (!is_array($update_array)) {
-            return;
-        }
+        try {
+            if (!is_array($update_array) || empty($update_array)) {
+                return false;
+            }
 
-        foreach ($update_array as $key => $value) {
-            $query_string .= "`" . $key . "` = '" . $value . "', ";
-        }
-        $query_string = substr($query_string, 0, -2);
-        $query        = "UPDATE `" . $db_table . "` SET " . $query_string . " WHERE `" . $db_field . "` = '" . intval($_POST['hc_id']) . "';";
-        $result       = $db->execute($query);
+            // Validate table and field names
+            if (!$this->isValidTableName($db_table) || !$this->isValidFieldName($db_field)) {
+                throw new InvalidArgumentException('Invalid table or field name');
+            }
 
-        if ($db->Affected_Rows() > 0) {
-            return true;
-        } else {
-            return false;
-        }
+            // Use provided ID or get from POST (with validation)
+            $id = $id_value !== null ? (int)$id_value : VSecurity::postParam('hc_id', 'int', 0);
+            if ($id <= 0) {
+                return false;
+            }
 
+            $setParts = [];
+            $values = [];
+            
+            foreach ($update_array as $key => $value) {
+                if (!$this->isValidFieldName($key)) {
+                    continue; // Skip invalid field names
+                }
+                $setParts[] = "`{$key}` = ?";
+                $values[] = $value;
+            }
+            
+            if (empty($setParts)) {
+                return false;
+            }
+            
+            $values[] = $id; // Add ID for WHERE clause
+            
+            $query = "UPDATE `{$db_table}` SET " . implode(', ', $setParts) . " WHERE `{$db_field}` = ?";
+            $result = $db->Execute($query, $values);
+
+            if (!$result) {
+                $logger = VLogger::getInstance();
+                $logger->logDatabaseError($db->ErrorMsg(), $query, $values);
+                return false;
+            }
+
+            return $db->Affected_Rows() > 0;
+        } catch (Exception $e) {
+            $logger = VLogger::getInstance();
+            $logger->logDatabaseError($e->getMessage(), $query ?? '', $values ?? []);
+            throw $e;
+        }
     }
     /* update table fields for usr_id */
     public function entryUpdate($dbt, $arr)
@@ -130,27 +204,53 @@ class VDatabase
         }
 
     }
-    /* insert into table from array */
+    /* insert into table from array - SECURE VERSION */
     public function doInsert($db_table, $insert_array)
     {
         global $db;
 
-        foreach ($insert_array as $key => $value) {
-            $field_string .= '`' . $key . '`, ';
-            $value_string .= "'" . $value . "', ";
+        try {
+            if (!is_array($insert_array) || empty($insert_array)) {
+                return false;
+            }
+
+            // Validate table name
+            if (!$this->isValidTableName($db_table)) {
+                throw new InvalidArgumentException('Invalid table name');
+            }
+
+            $fields = [];
+            $placeholders = [];
+            $values = [];
+
+            foreach ($insert_array as $key => $value) {
+                if (!$this->isValidFieldName($key)) {
+                    continue; // Skip invalid field names
+                }
+                $fields[] = "`{$key}`";
+                $placeholders[] = '?';
+                $values[] = $value;
+            }
+
+            if (empty($fields)) {
+                return false;
+            }
+
+            $query = "INSERT INTO `{$db_table}` (" . implode(', ', $fields) . ") VALUES (" . implode(', ', $placeholders) . ")";
+            $result = $db->Execute($query, $values);
+
+            if (!$result) {
+                $logger = VLogger::getInstance();
+                $logger->logDatabaseError($db->ErrorMsg(), $query, $values);
+                return false;
+            }
+
+            return $db->Affected_Rows() > 0;
+        } catch (Exception $e) {
+            $logger = VLogger::getInstance();
+            $logger->logDatabaseError($e->getMessage(), $query ?? '', $values ?? []);
+            throw $e;
         }
-        $field_string = substr($field_string, 0, -2);
-        $value_string = substr($value_string, 0, -2);
-
-        $query  = 'INSERT INTO `' . $db_table . '` (' . $field_string . ') VALUES (' . $value_string . ');';
-        $result = $db->execute($query);
-
-        if ($db->Affected_Rows() > 0) {
-            return true;
-        } else {
-            return false;
-        }
-
     }
     /* get specific config values from database and assign them */
     public function getConfigurations($settings)

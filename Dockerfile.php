@@ -19,4 +19,4 @@ printf '%s\n' \
   'display_errors=On' \
   'error_reporting=E_ALL | E_DEPRECATED | E_STRICT' \
   'log_errors=On' \
-  'error_log=/proc/self/fd/2' > /usr/local/etc/php/conf.d/zz-viewshark.ini
+  'error_log=/proc/self/fd/2' > /usr/local/etc/php/conf.d/zz-easystream.ini
