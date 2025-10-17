@@ -1,20 +1,11 @@
 {
-  email hello@sami-ahmed.net
   debug
 }
 
-# Catch-all for parent domain (redirect to test subdomain)
-https://watchmaji.com, http://watchmaji.com {
-  redir https://test.watchmaji.com{uri} 301
-}
+# Local development configuration
+:80 {
 
-https://test.watchmaji.com {
-  tls {
-    protocols tls1.2 tls1.3
-    ciphers TLS_AES_128_GCM_SHA256 TLS_CHACHA20_POLY1305_SHA256
-  }
-
-  root * /srv/viewshark
+  root * /srv/easystream
   encode zstd gzip
   file_server
 
@@ -25,17 +16,17 @@ https://test.watchmaji.com {
   # Admin panel routing -> backend parser
   @admin path /admin /admin/*
   rewrite @admin /f_modules/m_backend/parser.php
-  php_fastcgi php:9000
+  # Single php_fastcgi block below handles all PHP
 
   # Serve HLS (from SRS volume) under /hls
   handle_path /hls/* {
-    root * /var/www
+    root * /var/www/hls
     header Cache-Control "no-cache"
     header Access-Control-Allow-Origin "*"
     file_server
   }
 
-  # PHP with fallback to parser.php
+  # PHP with fallback to parser.php for non-existent paths
   php_fastcgi php:9000 {
     try_files {path} {path}/ /parser.php?{query}
   }
