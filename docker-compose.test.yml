@@ -1,0 +1,75 @@
+version: "3.8"
+
+services:
+  test-db:
+    image: mariadb:10.6
+    container_name: easystream-test-db
+    environment:
+      MYSQL_ROOT_PASSWORD: test
+      MYSQL_DATABASE: easystream_test
+      MYSQL_USER: test
+      MYSQL_PASSWORD: test
+    ports:
+      - "3307:3306"
+    volumes:
+      - test_db_data:/var/lib/mysql
+      - ./deploy/create_missing_tables.sql:/docker-entrypoint-initdb.d/1-create_tables.sql:ro
+      - ./deploy/init_settings.sql:/docker-entrypoint-initdb.d/2-init_settings.sql:ro
+      - ./tests/fixtures/test_data.sql:/docker-entrypoint-initdb.d/3-test_data.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u test -ptest --silent || exit 1"]
+      start_period: 30s
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    tmpfs:
+      - /tmp
+
+  test-redis:
+    image: redis:6-alpine
+    container_name: easystream-test-redis
+    ports:
+      - "6380:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    tmpfs:
+      - /data
+
+  test-php:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    container_name: easystream-test-php
+    working_dir: /srv/easystream
+    environment:
+      TZ: UTC
+      DB_HOST: test-db
+      DB_NAME: easystream_test
+      DB_USER: test
+      DB_PASS: test
+      REDIS_HOST: test-redis
+      REDIS_PORT: 6379
+      REDIS_DB: 1
+      TESTING: "true"
+      APP_ENV: testing
+    volumes:
+      - ./:/srv/easystream
+      - test_uploads:/srv/easystream/f_data/uploads
+      - test_logs:/srv/easystream/f_data/logs
+    depends_on:
+      test-db:
+        condition: service_healthy
+      test-redis:
+        condition: service_healthy
+    command: tail -f /dev/null
+
+volumes:
+  test_db_data:
+    driver: local
+  test_uploads:
+    driver: local
+  test_logs:
+    driver: local

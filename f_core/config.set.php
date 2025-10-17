@@ -15,4 +15,4 @@
 
 defined('_ISVALID') or header('Location: /error');
 
-$cfg['main_url'] = getenv('MAIN_URL') ?: 'https://test.watchmaji.com';
+$cfg['main_url'] = getenv('MAIN_URL') ?: 'http://localhost:8083';

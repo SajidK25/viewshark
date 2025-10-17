@@ -74,7 +74,7 @@ function formatContentMessage($content) {
     $message .= "📝 {$content['description']}\n\n";
     $message .= "👤 Posted by: {$content['username']}\n";
     $message .= "👁 Views: {$content['views']}\n";
-    $message .= "🔗 <a href='{$content['url']}'>Watch on ViewShark</a>\n";
+    $message .= "🔗 <a href='{$content['url']}'>Watch on EasyStream</a>\n";
     
     // Add hashtags if available
     if (!empty($content['tags'])) {
@@ -83,6 +83,7 @@ function formatContentMessage($content) {
         }, $content['tags']));
     }
     
+    // Branding normalization - already using EasyStream above
     return $message;
 }
 

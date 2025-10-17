@@ -32,8 +32,30 @@ if (isset($_GET['action'])) {
         case 'get_logs':
             $level = VSecurity::getParam('level', 'alpha');
             $limit = VSecurity::getParam('limit', 'int', 100, ['min' => 1, 'max' => 1000]);
-            
-            $logs = $logger->getRecentLogs($level, $limit);
+            $page  = VSecurity::getParam('page', 'int', 1, ['min' => 1]);
+            $q     = VSecurity::getParam('q', 'string', '');
+            $since = VSecurity::getParam('since', 'string', ''); // ISO datetime or date
+
+            $offset = ($page - 1) * $limit;
+            $logs = $logger->getRecentLogs($level, $limit, $offset);
+
+            // Optional filtering by keyword and since timestamp
+            if ($q !== '') {
+                $qq = strtolower($q);
+                $logs = array_values(array_filter($logs, function($row) use ($qq) {
+                    $hay = strtolower(($row['message'] ?? '') . ' ' . json_encode($row['context'] ?? []));
+                    return strpos($hay, $qq) !== false || ($row['request_id'] ?? '') === $qq;
+                }));
+            }
+            if ($since !== '') {
+                $sinceTs = strtotime($since);
+                if ($sinceTs !== false) {
+                    $logs = array_values(array_filter($logs, function($row) use ($sinceTs) {
+                        $ts = strtotime($row['timestamp'] ?? '');
+                        return $ts !== false && $ts >= $sinceTs;
+                    }));
+                }
+            }
             echo json_encode($logs);
             break;
             
@@ -88,6 +110,8 @@ if (isset($_GET['action'])) {
         <h1>System Logs</h1>
         
         <div class="controls">
+            <input id="logQuery" type="text" placeholder="Search keyword or request id" style="padding:8px 12px; width: 260px; margin-right:10px;" />
+            <input id="logSince" type="datetime-local" style="padding:8px 12px; margin-right:10px;" />
             <select id="logLevel">
                 <option value="">All Levels</option>
                 <option value="error">Errors</option>
@@ -104,6 +128,8 @@ if (isset($_GET['action'])) {
             </select>
             
             <button class="btn" onclick="loadLogs()">Refresh</button>
+            <button class="btn" onclick="prevPage()">Prev</button>
+            <button class="btn" onclick="nextPage()">Next</button>
             <button class="btn danger" onclick="clearLogs()">Clear All Logs</button>
         </div>
         
@@ -113,13 +139,17 @@ if (isset($_GET['action'])) {
     </div>
 
     <script>
+        let currentPage = 1;
         function loadLogs() {
             const level = document.getElementById('logLevel').value;
             const limit = document.getElementById('logLimit').value;
+            const q = encodeURIComponent(document.getElementById('logQuery').value || '');
+            const since = document.getElementById('logSince').value ? new Date(document.getElementById('logSince').value).toISOString() : '';
             
             document.getElementById('logContainer').innerHTML = '<div class="loading">Loading logs...</div>';
             
-            fetch(`?action=get_logs&level=${level}&limit=${limit}`)
+            const url = `?action=get_logs&level=${level}&limit=${limit}&page=${currentPage}&q=${q}&since=${encodeURIComponent(since)}`;
+            fetch(url)
                 .then(response => response.json())
                 .then(logs => {
                     displayLogs(logs);
@@ -128,6 +158,8 @@ if (isset($_GET['action'])) {
                     document.getElementById('logContainer').innerHTML = '<div class="error">Error loading logs: ' + error.message + '</div>';
                 });
         }
+        function nextPage(){ currentPage++; loadLogs(); }
+        function prevPage(){ if (currentPage>1){ currentPage--; loadLogs(); } }
         
         function displayLogs(logs) {
             const container = document.getElementById('logContainer');

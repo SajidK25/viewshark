@@ -77,7 +77,7 @@ class VServer
                                     if (stripos($avalue, $deny) !== false) {
                                         $p = json_encode($_POST);
                                         error_log(date("Y-m-d H:i:s") . ": Post: $p\n", 3, REQUEST_LOG);
-                                        error_log(date("Y-m-d H:i:s") . ": Req: " . self::get_ip . ": " . $_SERVER["REQUEST_URI"] . "\n", 3, REQUEST_LOG);
+                                        error_log(date("Y-m-d H:i:s") . ": Req: " . self::get_ip() . ": " . $_SERVER["REQUEST_URI"] . "\n", 3, REQUEST_LOG);
                                         error_log(date("Y-m-d H:i:s") . ": [" . $avalue . "]:[" . $deny . "]\n\n", 3, REQUEST_LOG);
                                         self::err();
                                     }
@@ -86,7 +86,7 @@ class VServer
                                 if (stripos($thevalue, $deny) !== false) {
                                     $p = json_encode($_POST);
                                     error_log(date("Y-m-d H:i:s") . ": Post: $p\n", 3, REQUEST_LOG);
-                                    error_log(date("Y-m-d H:i:s") . ": Req: " . self::get_ip . ": " . $_SERVER["REQUEST_URI"] . "\n", 3, REQUEST_LOG);
+                                    error_log(date("Y-m-d H:i:s") . ": Req: " . self::get_ip() . ": " . $_SERVER["REQUEST_URI"] . "\n", 3, REQUEST_LOG);
                                     error_log(date("Y-m-d H:i:s") . ": [" . $thevalue . "]:[" . $deny . "]\n\n", 3, REQUEST_LOG);
                                     self::err();
                                 }

@@ -48,6 +48,7 @@ $sections = array(
     $href["be_analytics"]      => 'f_modules/m_backend/analytics',
     $href["be_import"]         => 'f_modules/m_backend/m_tools/m_upload/import',
     $href["be_tokens"]         => 'f_modules/m_backend/tokens',
+    $href["be_dbtools"]        => 'f_modules/m_backend/db_tools',
 );
 
 $include = isset($sections[$section]) ? $sections[$section] : 'error';

@@ -253,7 +253,7 @@ class VGenerate
         include_once 'f_core/config.version.php';
 
         $html .= $language['frontend.copyright.text'] . ' ' . date("Y") . ' &copy; ' . $cfg['head_title'] . ' ' . $language['frontend.rights.text'] . '<br />';
-        $html .= $ct == 1 ? $language['frontend.powered.text'] . ' <a href="https://www.viewshark.com">' . $version['name'] . $version['major'] . '.' . $version['minor'] . '</a><br />' : null;
+        $html .= $ct == 1 ? $language['frontend.powered.text'] . ' <a href="' . $cfg['main_url'] . '">' . $version['name'] . $version['major'] . '.' . $version['minor'] . '</a><br />' : null;
 
         return $html;
     }

@@ -3,28 +3,30 @@ version: "3.8"
 services:
   db:
     volumes:
-      # - E:/docker-progs/viewshark/db_data:/var/lib/mysql
-      - ./viewshark/db_data:/var/lib/mysql
+      # - E:/docker-progs/easystream/db_data:/var/lib/mysql
+      - ./easystream/db_data:/var/lib/mysql
+
+
 
   php:
     volumes:
-      # - E:/docker-progs/viewshark/hls:/var/www/hls:ro
-      # - E:/docker-progs/viewshark/rec:/mnt/rec:ro
-      - ./viewshark/hls:/var/www/hls:ro
-      - ./viewshark/rec:/mnt/rec:ro
+      # - E:/docker-progs/easystream/hls:/var/www/hls:ro
+      # - E:/docker-progs/easystream/rec:/mnt/rec:ro
+      - ./easystream/hls:/var/www/hls:ro
+      - ./easystream/rec:/mnt/rec:ro
 
   caddy:
     volumes:
-      # - E:/docker-progs/viewshark/hls:/var/www/hls:ro
-      # - E:/docker-progs/viewshark/caddy_data:/data
-      # - E:/docker-progs/viewshark/caddy_config:/config
-      - ./viewshark/hls:/var/www/hls:ro
-      - ./viewshark/caddy_data:/data
-      - ./viewshark/caddy_config:/config
+      # - E:/docker-progs/easystream/hls:/var/www/hls:ro
+      # - E:/docker-progs/easystream/caddy_data:/data
+      # - E:/docker-progs/easystream/caddy_config:/config
+      - ./easystream/hls:/var/www/hls:ro
+      - ./easystream/caddy_data:/data
+      - ./easystream/caddy_config:/config
 
   srs:
     volumes:
-      # - E:/docker-progs/viewshark/hls:/srs/hls
-      # - E:/docker-progs/viewshark/rec:/srs/rec
-      - ./viewshark/hls:/srs/hls
-      - ./viewshark/rec:/srs/rec
+      # - E:/docker-progs/easystream/hls:/srs/hls
+      # - E:/docker-progs/easystream/rec:/srs/rec
+      - ./easystream/hls:/srs/hls
+      - ./easystream/rec:/srs/rec

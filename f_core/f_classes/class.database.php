@@ -74,7 +74,11 @@ class VDatabase
             'db_settings', 'db_conversion', 'db_videofiles', 'db_livefiles', 
             'db_accountuser', 'db_trackactivity', 'db_imagefiles', 'db_audiofiles',
             'db_documentfiles', 'db_blogfiles', 'db_comments', 'db_responses',
-            'db_playlists', 'db_subscriptions', 'db_categories', 'db_channels'
+            'db_playlists', 'db_subscriptions', 'db_categories', 'db_channels',
+            'db_users', 'db_sessions', 'db_ip_tracking', 'db_banlist', 
+            'db_fingerprints', 'db_fingerprint_bans', 'db_email_log', 
+            'db_notifications', 'db_user_preferences', 'db_password_resets',
+            'db_logs'
         ];
         return in_array($table, $allowedTables);
     }
@@ -281,21 +285,25 @@ class VDatabase
     {
         global $db;
 
-        $limit = (int) $limit;
+        $limit = max(1, (int) $limit);
+
+        $params = [];
         $whereTime = '';
         if ($timeWindowMinutes !== null) {
-            $timeWindowMinutes = (int) $timeWindowMinutes;
-            $whereTime = sprintf(" AND A.`upload_date` >= NOW() - INTERVAL %d MINUTE ", $timeWindowMinutes);
+            $timeWindowMinutes = max(1, (int) $timeWindowMinutes);
+            $since = date('Y-m-d H:i:s', time() - ($timeWindowMinutes * 60));
+            $whereTime = " AND A.`upload_date` >= ? ";
+            $params[] = $since;
         }
 
         $sql = "SELECT A.`file_key`, A.`file_title` AS `title`, A.`file_description` AS `description`, A.`file_views` AS `views`, A.`file_tags` AS `tags`, B.`usr_user` AS `username`
-             FROM `db_videofiles` A
-             JOIN `db_accountuser` B ON A.`usr_id`=B.`usr_id`
-             WHERE A.`approved`='1' AND A.`deleted`='0' AND A.`active`='1' AND A.`privacy`='public" . $whereTime . "
-             ORDER BY A.`upload_date` DESC
-             LIMIT " . $limit . ";";
+                FROM `db_videofiles` A
+                JOIN `db_accountuser` B ON A.`usr_id`=B.`usr_id`
+                WHERE A.`approved`='1' AND A.`deleted`='0' AND A.`active`='1' AND A.`privacy` IN (0,'0','public') " . $whereTime . "
+                ORDER BY A.`upload_date` DESC
+                LIMIT " . $limit;
 
-        $res = $db->execute($sql); // only ints interpolated; strings are static
+        $res = empty($params) ? $db->Execute($sql) : $db->Execute($sql, $params);
         $rows = [];
         if ($res) {
             while (!$res->EOF) {
@@ -318,21 +326,25 @@ class VDatabase
     {
         global $db;
 
-        $limit = (int) $limit;
+        $limit = max(1, (int) $limit);
+
+        $params = [];
         $whereTime = '';
         if ($timeWindowMinutes !== null) {
-            $timeWindowMinutes = (int) $timeWindowMinutes;
-            $whereTime = sprintf(" AND A.`upload_date` >= NOW() - INTERVAL %d MINUTE ", $timeWindowMinutes);
+            $timeWindowMinutes = max(1, (int) $timeWindowMinutes);
+            $since = date('Y-m-d H:i:s', time() - ($timeWindowMinutes * 60));
+            $whereTime = " AND A.`upload_date` >= ? ";
+            $params[] = $since;
         }
 
         $sql = "SELECT A.`file_key`, A.`stream_key`, A.`file_title` AS `title`, A.`file_description` AS `description`, A.`file_views` AS `views`, A.`file_tags` AS `tags`, B.`usr_user` AS `username`
-             FROM `db_livefiles` A
-             JOIN `db_accountuser` B ON A.`usr_id`=B.`usr_id`
-             WHERE A.`approved`='1' AND A.`deleted`='0' AND A.`active`='1' AND A.`privacy`='public" . $whereTime . "
-             ORDER BY A.`upload_date` DESC
-             LIMIT " . $limit . ";";
+                FROM `db_livefiles` A
+                JOIN `db_accountuser` B ON A.`usr_id`=B.`usr_id`
+                WHERE A.`approved`='1' AND A.`deleted`='0' AND A.`active`='1' AND A.`privacy` IN (0,'0','public') " . $whereTime . "
+                ORDER BY A.`upload_date` DESC
+                LIMIT " . $limit;
 
-        $res = $db->execute($sql); // only ints interpolated; strings are static
+        $res = empty($params) ? $db->Execute($sql) : $db->Execute($sql, $params);
         $rows = [];
         if ($res) {
             while (!$res->EOF) {
@@ -355,18 +367,32 @@ class VDatabase
     public function searchVideos($query, $limit = 5)
     {
         global $db;
-        $limit = (int) $limit;
-        $like = '%' . $query . '%';
-        $sql = "SELECT A.`file_key`, A.`file_title` AS `title`, A.`file_description` AS `description`, A.`file_views` AS `views`, A.`file_tags` AS `tags`, B.`usr_user` AS `username`
-             FROM `db_videofiles` A
-             JOIN `db_accountuser` B ON A.`usr_id`=B.`usr_id`
-             WHERE A.`approved`='1' AND A.`deleted`='0' AND A.`active`='1' AND A.`privacy`='public'
-               AND (A.`file_title` LIKE ? OR A.`file_description` LIKE ? OR A.`file_tags` LIKE ?)
-             ORDER BY A.`upload_date` DESC
-             LIMIT " . $limit . ";";
-
-        $res = $db->Execute($sql, array($like, $like, $like));
+        $limit = max(1, (int) $limit);
+        $query = trim((string) $query);
         $rows = [];
+
+        // Try FULLTEXT first; fallback to LIKE
+        try {
+            $sql = "SELECT A.`file_key`, A.`file_title` AS `title`, A.`file_description` AS `description`, A.`file_views` AS `views`, A.`file_tags` AS `tags`, B.`usr_user` AS `username`,
+                           MATCH(A.`file_title`, A.`file_description`, A.`file_tags`) AGAINST (? IN BOOLEAN MODE) AS score
+                    FROM `db_videofiles` A
+                    JOIN `db_accountuser` B ON A.`usr_id`=B.`usr_id`
+                    WHERE A.`approved`='1' AND A.`deleted`='0' AND A.`active`='1' AND A.`privacy` IN (0,'0','public')
+                      AND MATCH(A.`file_title`, A.`file_description`, A.`file_tags`) AGAINST (? IN BOOLEAN MODE)
+                    ORDER BY score DESC, A.`upload_date` DESC
+                    LIMIT " . $limit;
+            $res = $db->Execute($sql, array($query . '*', $query . '*'));
+        } catch (Exception $e) {
+            $like = '%' . $query . '%';
+            $sql = "SELECT A.`file_key`, A.`file_title` AS `title`, A.`file_description` AS `description`, A.`file_views` AS `views`, A.`file_tags` AS `tags`, B.`usr_user` AS `username`
+                    FROM `db_videofiles` A
+                    JOIN `db_accountuser` B ON A.`usr_id`=B.`usr_id`
+                    WHERE A.`approved`='1' AND A.`deleted`='0' AND A.`active`='1' AND A.`privacy` IN (0,'0','public')
+                      AND (A.`file_title` LIKE ? OR A.`file_description` LIKE ? OR A.`file_tags` LIKE ?)
+                    ORDER BY A.`upload_date` DESC
+                    LIMIT " . $limit;
+            $res = $db->Execute($sql, array($like, $like, $like));
+        }
         if ($res) {
             while (!$res->EOF) {
                 $rows[] = [
@@ -380,6 +406,177 @@ class VDatabase
                 $res->MoveNext();
             }
         }
+        return $rows;
+    }
+
+    /**
+     * Get latest videos within a time window
+     * @param int $limit Maximum number of videos to return
+     * @param int $time_window Time window in minutes (default: 5)
+     * @return array Array of video data
+     */
+    public function getLatestVideos($limit = 5, $time_window = 5)
+    {
+        global $db;
+        $rows = [];
+        
+        try {
+            // Validate inputs
+            $limit = max(1, min(100, (int)$limit)); // Between 1 and 100
+            $time_window = max(1, min(1440, (int)$time_window)); // Between 1 minute and 24 hours
+            
+            $sql = "SELECT A.`file_key`, A.`file_title` AS `title`, A.`file_description` AS `description`, 
+                           A.`file_views` AS `views`, A.`file_tags` AS `tags`, B.`usr_user` AS `username`,
+                           A.`upload_date`
+                    FROM `db_videofiles` A
+                    JOIN `db_accountuser` B ON A.`usr_id` = B.`usr_id`
+                    WHERE A.`approved` = '1' AND A.`deleted` = '0' AND A.`active` = '1' 
+                      AND A.`privacy` IN (0, '0', 'public')
+                      AND A.`upload_date` >= DATE_SUB(NOW(), INTERVAL ? MINUTE)
+                    ORDER BY A.`upload_date` DESC
+                    LIMIT ?";
+                    
+            $res = $db->Execute($sql, array($time_window, $limit));
+            
+            if ($res) {
+                while (!$res->EOF) {
+                    $rows[] = [
+                        'file_key'    => $res->fields['file_key'],
+                        'title'       => $res->fields['title'],
+                        'description' => $res->fields['description'],
+                        'views'       => (int) $res->fields['views'],
+                        'tags'        => (string) $res->fields['tags'],
+                        'username'    => $res->fields['username'],
+                        'upload_date' => $res->fields['upload_date']
+                    ];
+                    $res->MoveNext();
+                }
+            }
+        } catch (Exception $e) {
+            $logger = VLogger::getInstance();
+            $logger->logDatabaseError($e->getMessage(), $sql ?? '', [$time_window, $limit]);
+        }
+        
+        return $rows;
+    }
+
+    /**
+     * Search videos by query
+     * @param string $query Search query
+     * @param int $limit Maximum number of results to return
+     * @return array Array of video data
+     */
+    public function searchVideos($query, $limit = 10)
+    {
+        global $db;
+        $rows = [];
+        
+        try {
+            // Validate inputs
+            $limit = max(1, min(100, (int)$limit)); // Between 1 and 100
+            $query = trim($query);
+            
+            if (empty($query)) {
+                return $rows;
+            }
+            
+            // Try fulltext search first (if available)
+            try {
+                $sql = "SELECT A.`file_key`, A.`file_title` AS `title`, A.`file_description` AS `description`, 
+                               A.`file_views` AS `views`, A.`file_tags` AS `tags`, B.`usr_user` AS `username`,
+                               MATCH(A.`file_title`, A.`file_description`, A.`file_tags`) AGAINST (? IN BOOLEAN MODE) AS score
+                        FROM `db_videofiles` A
+                        JOIN `db_accountuser` B ON A.`usr_id` = B.`usr_id`
+                        WHERE A.`approved` = '1' AND A.`deleted` = '0' AND A.`active` = '1' 
+                          AND A.`privacy` IN (0, '0', 'public')
+                          AND MATCH(A.`file_title`, A.`file_description`, A.`file_tags`) AGAINST (? IN BOOLEAN MODE)
+                        ORDER BY score DESC, A.`upload_date` DESC
+                        LIMIT ?";
+                $res = $db->Execute($sql, array($query . '*', $query . '*', $limit));
+            } catch (Exception $e) {
+                // Fallback to LIKE search
+                $like = '%' . $query . '%';
+                $sql = "SELECT A.`file_key`, A.`file_title` AS `title`, A.`file_description` AS `description`, 
+                               A.`file_views` AS `views`, A.`file_tags` AS `tags`, B.`usr_user` AS `username`
+                        FROM `db_videofiles` A
+                        JOIN `db_accountuser` B ON A.`usr_id` = B.`usr_id`
+                        WHERE A.`approved` = '1' AND A.`deleted` = '0' AND A.`active` = '1' 
+                          AND A.`privacy` IN (0, '0', 'public')
+                          AND (A.`file_title` LIKE ? OR A.`file_description` LIKE ? OR A.`file_tags` LIKE ?)
+                        ORDER BY A.`upload_date` DESC
+                        LIMIT ?";
+                $res = $db->Execute($sql, array($like, $like, $like, $limit));
+            }
+            
+            if ($res) {
+                while (!$res->EOF) {
+                    $rows[] = [
+                        'file_key'    => $res->fields['file_key'],
+                        'title'       => $res->fields['title'],
+                        'description' => $res->fields['description'],
+                        'views'       => (int) $res->fields['views'],
+                        'tags'        => (string) $res->fields['tags'],
+                        'username'    => $res->fields['username']
+                    ];
+                    $res->MoveNext();
+                }
+            }
+        } catch (Exception $e) {
+            $logger = VLogger::getInstance();
+            $logger->logDatabaseError($e->getMessage(), $sql ?? '', [$query, $limit]);
+        }
+        
+        return $rows;
+    }
+
+    /**
+     * Get latest live streams within a time window
+     * @param int $limit Maximum number of streams to return
+     * @param int $time_window Time window in minutes (default: 5)
+     * @return array Array of stream data
+     */
+    public function getLatestStreams($limit = 5, $time_window = 5)
+    {
+        global $db;
+        $rows = [];
+        
+        try {
+            // Validate inputs
+            $limit = max(1, min(100, (int)$limit)); // Between 1 and 100
+            $time_window = max(1, min(1440, (int)$time_window)); // Between 1 minute and 24 hours
+            
+            $sql = "SELECT A.`live_key` AS `stream_key`, A.`live_title` AS `title`, A.`live_description` AS `description`, 
+                           A.`live_viewers` AS `views`, A.`live_tags` AS `tags`, B.`usr_user` AS `username`,
+                           A.`date_created`
+                    FROM `db_livefiles` A
+                    JOIN `db_accountuser` B ON A.`usr_id` = B.`usr_id`
+                    WHERE A.`approved` = '1' AND A.`deleted` = '0' AND A.`active` = '1' 
+                      AND A.`privacy` IN (0, '0', 'public')
+                      AND A.`date_created` >= DATE_SUB(NOW(), INTERVAL ? MINUTE)
+                    ORDER BY A.`date_created` DESC
+                    LIMIT ?";
+                    
+            $res = $db->Execute($sql, array($time_window, $limit));
+            
+            if ($res) {
+                while (!$res->EOF) {
+                    $rows[] = [
+                        'stream_key'  => $res->fields['stream_key'],
+                        'title'       => $res->fields['title'],
+                        'description' => $res->fields['description'],
+                        'views'       => (int) $res->fields['views'],
+                        'tags'        => (string) $res->fields['tags'],
+                        'username'    => $res->fields['username'],
+                        'date_created' => $res->fields['date_created']
+                    ];
+                    $res->MoveNext();
+                }
+            }
+        } catch (Exception $e) {
+            $logger = VLogger::getInstance();
+            $logger->logDatabaseError($e->getMessage(), $sql ?? '', [$time_window, $limit]);
+        }
+        
         return $rows;
     }
 }

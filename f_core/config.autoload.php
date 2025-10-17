@@ -48,6 +48,18 @@ spl_autoload_register(function ($class) {
                 $path = 'f_core/f_classes/class.security.php';
                 break;
             }
+            if ($class === 'VAuth') {
+                $path = 'f_core/f_classes/class.auth.php';
+                break;
+            }
+            if ($class === 'VRBAC') {
+                $path = 'f_core/f_classes/class.rbac.php';
+                break;
+            }
+            if ($class === 'VMiddleware') {
+                $path = 'f_core/f_classes/class.middleware.php';
+                break;
+            }
             if ($class === 'VLogger') {
                 $path = 'f_core/f_classes/class.logger.php';
                 break;
@@ -62,6 +74,14 @@ spl_autoload_register(function ($class) {
             }
             if ($class === 'VIPTracker') {
                 $path = 'f_core/f_classes/class.iptracker.php';
+                break;
+            }
+            if ($class === 'VRedis') {
+                $path = 'f_core/f_classes/class.redis.php';
+                break;
+            }
+            if ($class === 'VQueue') {
+                $path = 'f_core/f_classes/class.queue.php';
                 break;
             }
             

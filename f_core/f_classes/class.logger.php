@@ -72,6 +72,11 @@ class VLogger
             'peak_memory' => memory_get_peak_usage(true),
             'execution_time' => microtime(true) - ($_SERVER['REQUEST_TIME_FLOAT'] ?? microtime(true))
         ];
+
+        // Expose request id to clients for correlation
+        if (!headers_sent()) {
+            header('X-Request-ID: ' . $this->context['request_id']);
+        }
     }
     
     /**
@@ -198,14 +203,15 @@ class VLogger
     {
         global $db, $cfg;
         
-        // Only log to database if enabled in config
-        if (!isset($cfg['database_logging']) || !$cfg['database_logging']) {
+        // Only log to database if enabled in config (supports old/new keys)
+        $dbLogging = $cfg['logging_database_logging'] ?? ($cfg['database_logging'] ?? false);
+        if (!$dbLogging) {
             return;
         }
         
         try {
-            $sql = "INSERT INTO `db_logs` (`level`, `message`, `context`, `request_id`, `user_id`, `ip`, `created_at`) 
-                    VALUES (?, ?, ?, ?, ?, ?, NOW())";
+            $sql = "INSERT INTO `db_logs` (`level`, `message`, `context`, `request_id`, `user_id`, `ip`, `user_agent`, `request_uri`, `created_at`) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())";
             
             $db->Execute($sql, [
                 $level,
@@ -213,7 +219,9 @@ class VLogger
                 json_encode($logData['context']),
                 $logData['request_id'],
                 $logData['user_id'],
-                $logData['ip']
+                $logData['ip'],
+                $logData['user_agent'] ?? null,
+                $logData['request_uri'] ?? null
             ]);
         } catch (Exception $e) {
             // Fallback to file logging if database fails
@@ -246,6 +254,14 @@ class VLogger
         if (isset($cfg['admin_email']) && !empty($cfg['admin_email'])) {
             $this->sendEmailAlert($cfg['admin_email'], $subject, $body);
         }
+
+        // Optional webhook alerting
+        $webhookEnabled = $cfg['logging_error_webhook'] ?? false;
+        $webhookUrl = $cfg['logging_webhook_url'] ?? '';
+        $levels = $cfg['logging_webhook_levels'] ?? ['emergency','alert','critical','error'];
+        if ($webhookEnabled && $webhookUrl && in_array($level, $levels)) {
+            $this->sendWebhook($webhookUrl, $level, $logData);
+        }
     }
     
     /**
@@ -253,31 +269,77 @@ class VLogger
      */
     private function checkAlertRateLimit($key, $maxAlerts = 5, $timeWindow = 3600)
     {
+        // Prefer Redis counter with TTL; fallback to PHP session
+        $redis = $this->getRedis();
+        if ($redis) {
+            $rkey = 'alert_limit:' . $key;
+            try {
+                $cnt = $redis->incr($rkey);
+                if ((int)$cnt === 1) {
+                    $redis->expire($rkey, (int)$timeWindow);
+                }
+                return (int)$cnt <= (int)$maxAlerts;
+            } catch (\Exception $e) {
+                // fallthrough to session fallback
+            }
+        }
+
         if (!isset($_SESSION)) {
             session_start();
         }
-        
         $now = time();
         $alertKey = 'alert_limit_' . $key;
-        
         if (!isset($_SESSION[$alertKey])) {
             $_SESSION[$alertKey] = [];
         }
-        
-        // Clean old alerts
         $_SESSION[$alertKey] = array_filter($_SESSION[$alertKey], function($timestamp) use ($now, $timeWindow) {
             return ($now - $timestamp) < $timeWindow;
         });
-        
-        // Check if limit exceeded
         if (count($_SESSION[$alertKey]) >= $maxAlerts) {
             return false;
         }
-        
-        // Add current alert
         $_SESSION[$alertKey][] = $now;
-        
         return true;
+    }
+
+    /**
+     * Optional Redis client for rate limiting
+     */
+    private function getRedis()
+    {
+        static $r = null;
+        if ($r === false) return null;
+        if ($r instanceof \Redis) return $r;
+        $host = getenv('REDIS_HOST') ?: ($GLOBALS['cfg']['redis_host'] ?? null);
+        $port = (int) (getenv('REDIS_PORT') ?: ($GLOBALS['cfg']['redis_port'] ?? 6379));
+        $db   = (int) (getenv('REDIS_DB') ?: ($GLOBALS['cfg']['redis_db'] ?? 0));
+        if (!$host || !class_exists('Redis')) { $r = false; return null; }
+        try {
+            $cli = new \Redis();
+            if (!$cli->connect($host, $port, 1.5)) { $r = false; return null; }
+            if ($db) $cli->select($db);
+            $r = $cli;
+            return $cli;
+        } catch (\Exception $e) {
+            $r = false; return null;
+        }
+    }
+
+    /**
+     * Send webhook with log payload
+     */
+    private function sendWebhook($url, $level, $logData)
+    {
+        $payload = json_encode(['level' => $level, 'log' => $logData]);
+        $opts = [
+            'http' => [
+                'method' => 'POST',
+                'header' => "Content-Type: application/json\r\n",
+                'content' => $payload,
+                'timeout' => 2,
+            ]
+        ];
+        @file_get_contents($url, false, stream_context_create($opts));
     }
     
     /**
@@ -373,15 +435,48 @@ class VLogger
     /**
      * Get recent logs for admin dashboard
      */
-    public function getRecentLogs($level = null, $limit = 100)
+    public function getRecentLogs($level = null, $limit = 100, $offset = 0)
     {
+        global $db, $cfg;
         $logs = [];
+
+        $dbLogging = $cfg['logging_database_logging'] ?? ($cfg['database_logging'] ?? false);
+        if ($dbLogging && isset($db)) {
+            try {
+                $sql = "SELECT `level`, `message`, `context`, `request_id`, `user_id`, `ip`, `user_agent`, `request_uri`, `created_at`
+                        FROM `db_logs`";
+                $params = [];
+                if (!empty($level)) {
+                    $sql .= " WHERE `level` = ?";
+                    $params[] = $level;
+                }
+                $sql .= " ORDER BY `created_at` DESC LIMIT " . (int)$limit . " OFFSET " . (int)$offset;
+                $res = empty($params) ? $db->Execute($sql) : $db->Execute($sql, $params);
+                if ($res) {
+                    while (!$res->EOF) {
+                        $ctx = json_decode($res->fields['context'] ?: '{}', true);
+                        $logs[] = [
+                            'level' => $res->fields['level'],
+                            'message' => $res->fields['message'],
+                            'context' => is_array($ctx) ? $ctx : [],
+                            'request_id' => $res->fields['request_id'],
+                            'user_id' => $res->fields['user_id'],
+                            'ip' => $res->fields['ip'],
+                            'user_agent' => $res->fields['user_agent'],
+                            'request_uri' => $res->fields['request_uri'],
+                            'timestamp' => $res->fields['created_at'],
+                        ];
+                        $res->MoveNext();
+                    }
+                }
+                return $logs;
+            } catch (\Exception $e) {}
+        }
+
+        // File fallback: aggregate recent lines then slice by offset/limit
         $pattern = $this->logPath . date('Y-m-d') . '_' . ($level ?: '*') . '.log';
-        
         foreach (glob($pattern) as $file) {
             $lines = file($file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-            $lines = array_slice($lines, -$limit);
-            
             foreach ($lines as $line) {
                 $logEntry = json_decode($line, true);
                 if ($logEntry) {
@@ -389,12 +484,9 @@ class VLogger
                 }
             }
         }
-        
-        // Sort by timestamp
         usort($logs, function($a, $b) {
             return strtotime($b['timestamp']) - strtotime($a['timestamp']);
         });
-        
-        return array_slice($logs, 0, $limit);
+        return array_slice($logs, (int)$offset, (int)$limit);
     }
 }

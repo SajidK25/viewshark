@@ -79,7 +79,7 @@ $tests['permissions'] = [
 ];
 
 // Output test results
-echo "<h2>ViewShark Telegram Channel Setup Test</h2>";
+echo "<h2>EasyStream Telegram Channel Setup Test</h2>";
 echo "<table border='1' cellpadding='5'>";
 echo "<tr><th>Test</th><th>Status</th><th>Message</th></tr>";
 foreach ($tests as $test) {

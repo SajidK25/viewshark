@@ -133,6 +133,7 @@ $href["be_submit"]         = 'submit';
 $href["be_players"]        = 'players';
 $href["be_import"]         = 'import';
 $href["be_tokens"]         = 'tokens';
+$href["be_dbtools"]        = 'db_tools';
 /* other/mixed/extra */
 $href["x_recovery"] = 'recovery';
 $href["x_payment"]  = 'payment';

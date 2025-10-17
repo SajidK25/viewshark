@@ -266,20 +266,27 @@ class VSecurity
     }
     
     /**
-     * Rate limiting check
+     * Enhanced rate limiting check with Redis support
      * @param string $key Unique identifier (IP, user ID, etc.)
      * @param int $maxAttempts Maximum attempts
      * @param int $timeWindow Time window in seconds
+     * @param string $action Action being rate limited (for logging)
      * @return bool True if within limits
      */
-    public static function checkRateLimit($key, $maxAttempts = 10, $timeWindow = 300)
+    public static function checkRateLimit($key, $maxAttempts = 10, $timeWindow = 300, $action = 'unknown')
     {
+        $now = time();
+        $rateLimitKey = 'rate_limit_' . $key;
+        
+        // Try Redis first for better performance and persistence
+        if (self::useRedisRateLimit($rateLimitKey, $maxAttempts, $timeWindow, $now)) {
+            return true;
+        }
+        
+        // Fallback to session-based rate limiting
         if (!isset($_SESSION)) {
             session_start();
         }
-        
-        $now = time();
-        $rateLimitKey = 'rate_limit_' . $key;
         
         if (!isset($_SESSION[$rateLimitKey])) {
             $_SESSION[$rateLimitKey] = [];
@@ -292,6 +299,16 @@ class VSecurity
         
         // Check if limit exceeded
         if (count($_SESSION[$rateLimitKey]) >= $maxAttempts) {
+            // Log rate limit violation
+            $logger = VLogger::getInstance();
+            $logger->logSecurityEvent("Rate limit exceeded for key: {$key}, action: {$action}", [
+                'key' => $key,
+                'action' => $action,
+                'max_attempts' => $maxAttempts,
+                'time_window' => $timeWindow,
+                'current_attempts' => count($_SESSION[$rateLimitKey])
+            ]);
+            
             return false;
         }
         
@@ -299,5 +316,251 @@ class VSecurity
         $_SESSION[$rateLimitKey][] = $now;
         
         return true;
+    }
+    
+    /**
+     * Redis-based rate limiting
+     * @param string $key Rate limit key
+     * @param int $maxAttempts Maximum attempts
+     * @param int $timeWindow Time window in seconds
+     * @param int $now Current timestamp
+     * @return bool|null True if allowed, false if exceeded, null if Redis unavailable
+     */
+    private static function useRedisRateLimit($key, $maxAttempts, $timeWindow, $now)
+    {
+        try {
+            $redis = self::getRedisConnection();
+            if (!$redis) {
+                return null;
+            }
+            
+            // Use Redis sorted set for sliding window rate limiting
+            $redisKey = 'rl:' . $key;
+            
+            // Remove old entries
+            $redis->zRemRangeByScore($redisKey, 0, $now - $timeWindow);
+            
+            // Count current attempts
+            $currentAttempts = $redis->zCard($redisKey);
+            
+            if ($currentAttempts >= $maxAttempts) {
+                // Log rate limit violation
+                $logger = VLogger::getInstance();
+                $logger->logSecurityEvent("Redis rate limit exceeded for key: {$key}", [
+                    'key' => $key,
+                    'max_attempts' => $maxAttempts,
+                    'time_window' => $timeWindow,
+                    'current_attempts' => $currentAttempts
+                ]);
+                
+                return false;
+            }
+            
+            // Add current attempt
+            $redis->zAdd($redisKey, $now, uniqid());
+            $redis->expire($redisKey, $timeWindow);
+            
+            return true;
+            
+        } catch (Exception $e) {
+            // Redis failed, fall back to session-based rate limiting
+            return null;
+        }
+    }
+    
+    /**
+     * Get Redis connection
+     * @return Redis|null
+     */
+    private static function getRedisConnection()
+    {
+        static $redis = null;
+        static $connectionAttempted = false;
+        
+        if ($connectionAttempted && $redis === null) {
+            return null;
+        }
+        
+        if ($redis !== null) {
+            return $redis;
+        }
+        
+        $connectionAttempted = true;
+        
+        try {
+            if (!class_exists('Redis')) {
+                return null;
+            }
+            
+            $redis = new Redis();
+            $host = getenv('REDIS_HOST') ?: 'redis';
+            $port = (int)(getenv('REDIS_PORT') ?: 6379);
+            $db = (int)(getenv('REDIS_DB') ?: 0);
+            
+            if (!$redis->connect($host, $port, 2)) {
+                return null;
+            }
+            
+            if ($db > 0) {
+                $redis->select($db);
+            }
+            
+            return $redis;
+            
+        } catch (Exception $e) {
+            return null;
+        }
+    }
+    
+    /**
+     * Advanced security monitoring
+     * @param string $event Security event type
+     * @param array $context Additional context
+     */
+    public static function logSecurityEvent($event, $context = [])
+    {
+        $logger = VLogger::getInstance();
+        
+        $securityContext = array_merge($context, [
+            'ip' => self::getClientIP(),
+            'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? 'unknown',
+            'request_uri' => $_SERVER['REQUEST_URI'] ?? '',
+            'request_method' => $_SERVER['REQUEST_METHOD'] ?? '',
+            'user_id' => $_SESSION['USER_ID'] ?? null,
+            'session_id' => session_id() ?: null,
+            'timestamp' => date('Y-m-d H:i:s'),
+            'security_event' => true
+        ]);
+        
+        $logger->logSecurityEvent($event, $securityContext);
+    }
+    
+    /**
+     * Get client IP address with proxy support
+     * @return string
+     */
+    private static function getClientIP()
+    {
+        $ipKeys = [
+            'HTTP_CF_CONNECTING_IP',
+            'HTTP_X_FORWARDED_FOR',
+            'HTTP_X_FORWARDED',
+            'HTTP_X_CLUSTER_CLIENT_IP',
+            'HTTP_FORWARDED_FOR',
+            'HTTP_FORWARDED',
+            'REMOTE_ADDR'
+        ];
+        
+        foreach ($ipKeys as $key) {
+            if (array_key_exists($key, $_SERVER) === true) {
+                $ip = $_SERVER[$key];
+                if (strpos($ip, ',') !== false) {
+                    $ip = explode(',', $ip)[0];
+                }
+                $ip = trim($ip);
+                if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+                    return $ip;
+                }
+            }
+        }
+        
+        return $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+    }
+    
+    /**
+     * Check for suspicious activity patterns
+     * @param string $userId User ID or IP
+     * @param string $action Action being performed
+     * @return bool True if activity seems suspicious
+     */
+    public static function detectSuspiciousActivity($userId, $action)
+    {
+        $suspiciousPatterns = [
+            'rapid_requests' => ['limit' => 100, 'window' => 60],
+            'failed_logins' => ['limit' => 10, 'window' => 300],
+            'password_resets' => ['limit' => 5, 'window' => 3600],
+            'file_uploads' => ['limit' => 50, 'window' => 3600]
+        ];
+        
+        if (isset($suspiciousPatterns[$action])) {
+            $pattern = $suspiciousPatterns[$action];
+            $key = "suspicious_{$action}_{$userId}";
+            
+            if (!self::checkRateLimit($key, $pattern['limit'], $pattern['window'], $action)) {
+                self::logSecurityEvent("Suspicious activity detected: {$action}", [
+                    'user_id' => $userId,
+                    'action' => $action,
+                    'pattern' => $pattern
+                ]);
+                
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Enhanced file upload validation with security scanning
+     * @param array $file $_FILES array element
+     * @param array $allowedTypes Allowed MIME types
+     * @param int $maxSize Maximum file size in bytes
+     * @param bool $scanForMalware Enable malware scanning
+     * @return array Result with 'valid' boolean and 'error' message
+     */
+    public static function validateFileUploadAdvanced($file, $allowedTypes = [], $maxSize = 10485760, $scanForMalware = true)
+    {
+        $result = self::validateFileUpload($file, $allowedTypes, $maxSize);
+        
+        if (!$result['valid']) {
+            return $result;
+        }
+        
+        // Additional security checks
+        $filename = $file['name'] ?? '';
+        $tmpName = $file['tmp_name'] ?? '';
+        
+        // Check for dangerous file extensions
+        $dangerousExtensions = ['php', 'phtml', 'php3', 'php4', 'php5', 'pht', 'phar', 'exe', 'bat', 'cmd', 'scr', 'vbs', 'js', 'jar'];
+        $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+        
+        if (in_array($extension, $dangerousExtensions)) {
+            self::logSecurityEvent("Dangerous file upload attempt", [
+                'filename' => $filename,
+                'extension' => $extension,
+                'mime_type' => $result['mime_type']
+            ]);
+            
+            return ['valid' => false, 'error' => 'File type not allowed for security reasons'];
+        }
+        
+        // Check file content for embedded scripts
+        if ($scanForMalware && is_file($tmpName)) {
+            $content = file_get_contents($tmpName, false, null, 0, 8192); // Read first 8KB
+            
+            $maliciousPatterns = [
+                '/<\?php/i',
+                '/<script/i',
+                '/eval\s*\(/i',
+                '/exec\s*\(/i',
+                '/system\s*\(/i',
+                '/shell_exec\s*\(/i',
+                '/base64_decode\s*\(/i'
+            ];
+            
+            foreach ($maliciousPatterns as $pattern) {
+                if (preg_match($pattern, $content)) {
+                    self::logSecurityEvent("Malicious content detected in upload", [
+                        'filename' => $filename,
+                        'pattern' => $pattern,
+                        'mime_type' => $result['mime_type']
+                    ]);
+                    
+                    return ['valid' => false, 'error' => 'File contains potentially malicious content'];
+                }
+            }
+        }
+        
+        return $result;
     }
 }

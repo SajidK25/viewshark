@@ -2,7 +2,7 @@ EasyStream Database Configuration Fix
 ====================================
 
 If you're getting the error:
-"Warning: Undefined array key "new_layout" in /srv/viewshark/f_core/config.smarty.php on line 44"
+"Warning: Undefined array key \"new_layout\" in /srv/easystream/f_core/config.smarty.php on line 44"
 
 This means some database configurations are missing. To fix this:
 

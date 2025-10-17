@@ -54,11 +54,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (strpos($text, '/') === 0) {
             switch ($text) {
                 case '/start':
-                    sendToTelegram($chat_id, "Welcome to ViewShark Bot! Use /videos to get latest videos.");
+                    sendToTelegram($chat_id, "Welcome to EasyStream Bot! Use /videos to get the latest videos.");
                     break;
                     
                 case '/videos':
-                    // Get latest videos from ViewShark
+                    // Get latest videos from EasyStream
                     $videos = $class_database->getLatestVideos(5); // Adjust limit as needed
                     $response = "Latest Videos:\n\n";
                     foreach ($videos as $video) {

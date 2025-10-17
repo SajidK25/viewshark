@@ -39,7 +39,7 @@ AUTH_CONFIG = {
     # E.g. Local Dev Env on port 8080: http://localhost:8080
     # E.g. Hosted on App Engine: https://your-application-id.appspot.com
     'OAUTH_REDIRECT_URI': '%s%s' % (
-        'https://viewshark-app.appspot.com',
+        'https://easystream-app.appspot.com',
         '/admin/auth')
 }
 

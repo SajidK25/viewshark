@@ -38,10 +38,11 @@ VServer::var_check();
 //cache dir
 $ADODB_CACHE_DIR = $cfg['db_cache_dir'];
 //include init
-require_once 'f_classes/class_adodb/adodb.inc.php';
-require_once 'f_classes/class_mobile/MobileDetect.php';
-require_once 'f_functions/functions.general.php';
-require_once 'f_functions/functions.security.php';
+require_once 'f_core/f_classes/class_adodb/adodb.inc.php';
+require_once 'f_core/f_classes/class_mobile/MobileDetect.php';
+require_once 'f_core/f_functions/functions.general.php';
+require_once 'f_core/f_functions/functions.security.php';
+require_once 'f_core/f_functions/functions.queue.php';
 //class init
 $class_filter   = new VFilter;
 $class_language = new VLanguage;
@@ -63,7 +64,8 @@ require_once 'config.theme.php';
 //cookie stuff
 VServer::cookie_validation_set();
 //check access based on IP address
-VIPaccess::sectionAccess($backend_access_url);
+$ip_access = new VIPaccess();
+$ip_access->sectionAccess($backend_access_url);
 //load some language files
 include_once $class_language->setLanguageFile('frontend', 'language.footer');
 if (VSession::isLoggedIn()) {

@@ -38,7 +38,7 @@
 - f_data/data_userfiles/user_uploads/ ........... 0777
 - f_data/data_userfiles/user_views/ ............. 0777
 
-6. Access the admin panel at https://www.yourdomain.com/admin with username admin and password admin
+6. Access the admin panel at http://localhost:8083/admin with username admin and password admin
 
 7. Change the default admin password at Access Control > Admin Panel Access
 

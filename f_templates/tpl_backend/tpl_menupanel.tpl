@@ -211,6 +211,8 @@
                                             <li><a href="javascript:;" id="backend-menu-entry3-sub18" class="menu-panel-entry-sub be-panel" rel-m="{href_entry key="be_settings"}"><i class="iconBe-arrow-right in-menu"></i>{lang_entry key="backend.menu.st.time"}</a></li>
                                             <li><a href="javascript:;" id="backend-menu-entry3-sub9" class="menu-panel-entry-sub be-panel" rel-m="{href_entry key="be_settings"}"><i class="iconBe-arrow-right in-menu"></i>{lang_entry key="backend.menu.st.sysinfo"}</a></li>
                                             <li><a href="javascript:;" id="backend-menu-entry3-sub7" class="menu-panel-entry-sub be-panel" rel-m="{href_entry key="be_settings"}"><i class="iconBe-arrow-right in-menu"></i>{lang_entry key="backend.menu.st.phpinfo"}</a></li>
+<li><a href="/f_modules/m_backend/log_viewer.php"><i class="iconBe-arrow-right in-menu"></i>System Logs</a></li>
+<li><a href="/f_modules/m_backend/db_tools.php"><i class="iconBe-arrow-right in-menu"></i>Database Tools</a></li>
                                         </ul>
                                     </li>
                                 </ul>

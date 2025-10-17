@@ -1,0 +1,210 @@
+name: EasyStream Test Suite
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    services:
+      mariadb:
+        image: mariadb:10.6
+        env:
+          MYSQL_ROOT_PASSWORD: test
+          MYSQL_DATABASE: easystream_test
+          MYSQL_USER: test
+          MYSQL_PASSWORD: test
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+      
+      redis:
+        image: redis:6
+        ports:
+          - 6379:6379
+        options: --health-cmd="redis-cli ping" --health-interval=10s --health-timeout=5s --health-retries=3
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        extensions: mbstring, xml, ctype, iconv, intl, pdo_mysql, redis, imagick, gd
+        coverage: xdebug
+    
+    - name: Validate composer.json and composer.lock
+      run: composer validate --strict
+    
+    - name: Cache Composer packages
+      id: composer-cache
+      uses: actions/cache@v3
+      with:
+        path: vendor
+        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-
+    
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress --no-suggest
+    
+    - name: Create test directories
+      run: |
+        mkdir -p tests/temp
+        mkdir -p tests/fixtures
+        mkdir -p tests/coverage
+        mkdir -p tests/results
+        mkdir -p f_data/logs/test
+        mkdir -p f_data/uploads/test
+        mkdir -p f_data/cache/test
+        chmod -R 777 f_data
+    
+    - name: Wait for MariaDB
+      run: |
+        while ! mysqladmin ping -h"127.0.0.1" -P3306 -utest -ptest --silent; do
+          sleep 1
+        done
+    
+    - name: Setup test database
+      run: |
+        mysql -h127.0.0.1 -P3306 -utest -ptest easystream_test < deploy/create_missing_tables.sql
+        mysql -h127.0.0.1 -P3306 -utest -ptest easystream_test < deploy/init_settings.sql
+        mysql -h127.0.0.1 -P3306 -utest -ptest easystream_test < tests/fixtures/test_data.sql
+    
+    - name: Run PHPUnit tests
+      env:
+        DB_HOST: 127.0.0.1
+        DB_NAME: easystream_test
+        DB_USER: test
+        DB_PASS: test
+        REDIS_HOST: 127.0.0.1
+        REDIS_PORT: 6379
+        TESTING: true
+      run: composer run-script test-ci
+    
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./tests/coverage/clover.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+    
+    - name: Archive test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: test-results
+        path: |
+          tests/results/
+          tests/coverage/
+    
+    - name: Run security tests
+      env:
+        DB_HOST: 127.0.0.1
+        DB_NAME: easystream_test
+        DB_USER: test
+        DB_PASS: test
+        REDIS_HOST: 127.0.0.1
+        TESTING: true
+      run: composer run-script test-security
+    
+    - name: Run performance tests
+      env:
+        DB_HOST: 127.0.0.1
+        DB_NAME: easystream_test
+        DB_USER: test
+        DB_PASS: test
+        REDIS_HOST: 127.0.0.1
+        TESTING: true
+      run: composer run-script test-performance
+
+  code-quality:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        extensions: mbstring, xml, ctype, iconv, intl
+    
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress --no-suggest
+    
+    - name: Check PHP syntax
+      run: find . -name "*.php" -not -path "./vendor/*" -not -path "./f_core/f_classes/class_adodb/*" -not -path "./f_core/f_classes/class_smarty/*" | xargs -I {} php -l {}
+    
+    - name: Run code style checks (if configured)
+      run: |
+        if [ -f "phpcs.xml" ]; then
+          ./vendor/bin/phpcs
+        else
+          echo "No code style configuration found, skipping..."
+        fi
+      continue-on-error: true
+
+  integration-test:
+    runs-on: ubuntu-latest
+    
+    services:
+      mariadb:
+        image: mariadb:10.6
+        env:
+          MYSQL_ROOT_PASSWORD: test
+          MYSQL_DATABASE: easystream_test
+          MYSQL_USER: test
+          MYSQL_PASSWORD: test
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+      
+      redis:
+        image: redis:6
+        ports:
+          - 6379:6379
+        options: --health-cmd="redis-cli ping" --health-interval=10s --health-timeout=5s --health-retries=3
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        extensions: mbstring, xml, ctype, iconv, intl, pdo_mysql, redis, imagick, gd
+    
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress --no-suggest
+    
+    - name: Setup test environment
+      run: |
+        mkdir -p tests/temp tests/fixtures tests/coverage tests/results
+        mkdir -p f_data/logs/test f_data/uploads/test f_data/cache/test
+        chmod -R 777 f_data
+    
+    - name: Setup test database
+      run: |
+        mysql -h127.0.0.1 -P3306 -utest -ptest easystream_test < deploy/create_missing_tables.sql
+        mysql -h127.0.0.1 -P3306 -utest -ptest easystream_test < deploy/init_settings.sql
+        mysql -h127.0.0.1 -P3306 -utest -ptest easystream_test < tests/fixtures/test_data.sql
+    
+    - name: Run integration tests
+      env:
+        DB_HOST: 127.0.0.1
+        DB_NAME: easystream_test
+        DB_USER: test
+        DB_PASS: test
+        REDIS_HOST: 127.0.0.1
+        TESTING: true
+      run: composer run-script test-integration

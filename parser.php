@@ -12,7 +12,9 @@
 |*******************************************************************************************************************
 | Copyright (c) 2025 Sami Ahmed. All rights reserved.
 |*******************************************************************************************************************/
-define('_INCLUDE', true);
+if (!defined('_INCLUDE')) {
+    define('_INCLUDE', true);
+}
 
 require 'f_core/config.backend.php';
 require 'f_core/config.href.php';
@@ -22,11 +24,16 @@ $request_uri  = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : null;
 $request_uri  = $query_string != null ? substr($request_uri, 0, strpos($request_uri, '?')) : $request_uri;
 
 $section_array = explode('/', trim($request_uri, '/'));
-if (isset($section_array[0]) and $section_array[0][0] == '@') {
+if (isset($section_array[0]) && !empty($section_array[0]) && $section_array[0][0] == '@') {
     $section_array[0] = '@';
 }
 
-$section = (strpos($request_uri, $backend_access_url) and isset($section_array[0]) and $section_array[0][0] != '@') ? $backend_access_url : keyCheck($section_array, $href);
+// Check if this is an admin URL
+if (isset($section_array[0]) && $section_array[0] === $backend_access_url) {
+    $section = $backend_access_url;
+} else {
+    $section = keyCheck($section_array, $href);
+}
 
 /* uncomment to have links with more than one forward slash */
 //$href["user"]            = hrefCheck($href["user"]);
@@ -36,6 +43,7 @@ $section = (strpos($request_uri, $backend_access_url) and isset($section_array[0
 
 $sections = array(
     $backend_access_url     => 'f_modules/m_backend/parser',
+    $href["index"]          => 'index',
     $href["error"]          => 'error',
     $href["renew"]          => 'f_modules/m_frontend/m_auth/renew',
     $href["signup"]         => 'f_modules/m_frontend/m_auth/signup',
@@ -138,6 +146,11 @@ function keyCheck($k, $a)
             return $v;
         }
     }
+    // Return empty string for root URL (home page)
+    if (empty($k) || (count($k) == 1 && $k[0] === '')) {
+        return '';
+    }
+    return null;
 }
 
 function compress_page($buffer)

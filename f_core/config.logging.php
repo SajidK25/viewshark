@@ -44,6 +44,10 @@ $logging_config = [
         'max_alerts' => 5,
         'time_window' => 3600 // 1 hour
     ],
+    // Optional webhook for error alerts (e.g., Sentry/Slack)
+    'error_webhook' => false,
+    'webhook_url' => '',
+    'webhook_levels' => ['emergency','alert','critical','error'],
     
     // Performance monitoring
     'performance_thresholds' => [

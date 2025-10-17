@@ -28,7 +28,13 @@ include_once $class_language->setLanguageFile('frontend', 'language.recovery');
 
 $error_message  = null;
 $notice_message = null;
-$cfg            = $class_database->getConfigurations('backend_remember,backend_signin_section,backend_username,backend_password,activity_logging,password_recovery_captcha,username_recovery_captcha,recovery_link_lifetime,allow_username_recovery,allow_password_recovery,backend_username_recovery,backend_password_recovery,backend_username_recovery_captcha,backend_password_recovery_captcha,backend_username,backend_email,noreply_email,global_signup,signup_ip_access,list_ip_signup,disabled_signup_message,reserved_usernames,signup_min_age,signup_max_age,signup_min_password,signup_max_password,signup_min_username,signup_max_username,paid_memberships,numeric_delimiter,paypal_email,paypal_test,paypal_test_email,signup_username_availability,signup_password_meter,signin_captcha_be,signup_domain_restriction,list_email_domains,list_reserved_users,signup_terms,username_format,username_format_dott,username_format_dash,username_format_underscore,discount_codes,account_email_verification,account_approval,notify_welcome,paypal_payments,approve_friends,backend_notification_payment,backend_notification_signup,backend_email,backend_username,recaptcha_site_key,recaptcha_secret_key');
+$cfg            = $class_database->getConfigurations('backend_remember,backend_signin_section,backend_username,backend_password,activity_logging,password_recovery_captcha,username_recovery_captcha,recovery_link_lifetime,allow_username_recovery,allow_password_recovery,backend_username_recovery,backend_password_recovery,backend_username_recovery_captcha,backend_password_recovery_captcha,backend_username,backend_email,noreply_email,global_signup,signup_ip_access,list_ip_signup,disabled_signup_message,reserved_usernames,signup_min_age,signup_max_age,signup_min_password,signup_max_password,signup_min_username,signup_max_username,paid_memberships,numeric_delimiter,paypal_email,paypal_test,paypal_test_email,signup_username_availability,signup_password_meter,signin_captcha_be,signup_domain_restriction,list_email_domains,list_reserved_users,signup_terms,username_format,username_format_dott,username_format_dash,username_format_underscore,discount_codes,account_email_verification,account_approval,notify_welcome,paypal_payments,approve_friends,backend_notification_payment,backend_notification_signup,backend_email,backend_username,recaptcha_site_key,recaptcha_secret_key,setup_complete');
+
+// Check if setup is required - redirect to setup if not completed
+if ($cfg["setup_complete"] != '1' && file_exists('setup.php')) {
+    $class_redirect->to('', $cfg["main_url"] . '/setup.php');
+    exit;
+}
 
 if (intval($_POST["frontend_global_submit"] == 1) and $cfg["backend_signin_section"] == 1) {
     //login has been submitted
